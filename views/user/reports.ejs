@@ -1,33 +1,42 @@
 <!DOCTYPE html>
 <html lang="<%= lang %>" dir="<%= dir %>">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= t.reportsTracking %> - <%= t.hotelName %></title>
+    <title>
+        <%= t.reportsTracking %> - <%= t.hotelName %>
+    </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     <%- include('../partials/styles') %>
 </head>
+
 <body class="dashboard-bg">
     <!-- زر القائمة للموبايل -->
     <button class="mobile-menu-btn" id="mobileMenuBtn">
         <i class="fas fa-bars"></i>
     </button>
-    
+
     <!-- Overlay للجوال -->
     <div class="overlay" id="overlay"></div>
-    
+
     <!-- الشريط الجانبي -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo">
-                <img src="/images/logo.png" alt="<%= t.hotelName %>" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iNDAiIGZpbGw9IiNEMEFGMzciLz4KPC9zdmc+Cg=='">
+                <img src="/images/logo.png" alt="<%= t.hotelName %>"
+                    onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iNDAiIGZpbGw9IiNEMEFGMzciLz4KPC9zdmc+Cg=='">
             </div>
-            <h5 class="text-gold mb-1"><%= t.hotelName %></h5>
-            <small class="text-light"><%= t.userDashboard %></small>
+            <h5 class="text-gold mb-1">
+                <%= t.hotelName %>
+            </h5>
+            <small class="text-light">
+                <%= t.userDashboard %>
+            </small>
         </div>
-        
+
         <nav class="nav flex-column">
             <a href="/user/dashboard?lang=<%= lang %>" class="nav-link">
                 <span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span>
@@ -50,7 +59,7 @@
                 <%= t.profile %>
             </a>
         </nav>
-        
+
         <div class="mt-auto p-3 border-top">
             <form action="/logout" method="POST" class="d-grid">
                 <input type="hidden" name="lang" value="<%= lang %>">
@@ -61,7 +70,7 @@
             </form>
         </div>
     </div>
-    
+
     <!-- المحتوى الرئيسي -->
     <div class="dashboard-content">
         <nav class="navbar navbar-luxury">
@@ -72,247 +81,354 @@
                         <%= t.reportsTracking %>
                     </h4>
                 </div>
-                
+
                 <div class="navbar-right">
                     <div class="language-menu">
                         <a href="?lang=<%= lang === 'ar' ? 'en' : 'ar' %>" class="btn btn-lang">
                             <i class="fas fa-globe me-2"></i>
-                            <%= lang === 'ar' ? 'English' : 'العربية' %>
+                            <%= lang==='ar' ? 'English' : 'العربية' %>
                         </a>
                     </div>
                 </div>
             </div>
         </nav>
-        
+
         <div class="content-wrapper">
-            <div class="dashboard-header mb-4">
-                <h1 class="welcome-message">
-                    <i class="fas fa-flag text-gold me-2"></i>
-                    <%= t.reportsTracking %>
-                </h1>
-                <p class="sub-message">
-                    <%= lang === 'ar' ? 'تسجيل ومتابعة البلاغات والشكاوى' : 'Register and track reports and complaints' %>
-                </p>
-            </div>
+            <!-- رسائل النجاح/الخطأ -->
+            <% if (success) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <% if (success==='report_created' ) { %>
+                        <%= lang==='ar' ? 'تم تسجيل البلاغ بنجاح!' : 'Report created successfully!' %>
+                            <% } %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <% } %>
 
-            <!-- بطاقات الإحصائيات -->
-            <div class="row mb-4">
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="stat-card">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h3 class="stat-number"><%= userReports ? userReports.length : 0 %></h3>
-                                <p class="text-muted mb-0"><%= lang === 'ar' ? 'إجمالي البلاغات' : 'Total Reports' %></p>
-                            </div>
-                            <div class="stat-icon">
-                                <i class="fas fa-flag"></i>
-                            </div>
+                    <% if (error) { %>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <% if (error==='missing_fields' ) { %>
+                                <%= lang==='ar' ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill all required fields' %>
+                                    <% } else if (error==='create_failed' ) { %>
+                                        <%= lang==='ar' ? 'فشل في تسجيل البلاغ' : 'Failed to create report' %>
+                                            <% } %>
+                                                <button type="button" class="btn-close"
+                                                    data-bs-dismiss="alert"></button>
                         </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="stat-card">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h3 class="stat-number">5</h3>
-                                <p class="text-muted mb-0"><%= lang === 'ar' ? 'معلقة' : 'Pending' %></p>
-                            </div>
-                            <div class="stat-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="stat-card">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h3 class="stat-number">8</h3>
-                                <p class="text-muted mb-0"><%= lang === 'ar' ? 'تم حلها' : 'Resolved' %></p>
-                            </div>
-                            <div class="stat-icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="stat-card">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h3 class="stat-number">3</h3>
-                                <p class="text-muted mb-0"><%= lang === 'ar' ? 'قيد المعالجة' : 'In Progress' %></p>
-                            </div>
-                            <div class="stat-icon">
-                                <i class="fas fa-spinner"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        <% } %>
 
-            <!-- زر إضافة بلاغ جديد -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="text-gold mb-0">
-                    <i class="fas fa-list me-2"></i>
-                    <%= lang === 'ar' ? 'البلاغات المسجلة' : 'Registered Reports' %>
-                </h5>
-                <button class="btn btn-luxury" data-bs-toggle="modal" data-bs-target="#newReportModal">
-                    <i class="fas fa-plus me-2"></i>
-                    <%= lang === 'ar' ? 'بلاغ جديد' : 'New Report' %>
-                </button>
-            </div>
+                            <div class="dashboard-header mb-4">
+                                <h1 class="welcome-message">
+                                    <i class="fas fa-flag text-gold me-2"></i>
+                                    <%= t.reportsTracking %>
+                                </h1>
+                                <p class="sub-message">
+                                    <%= lang==='ar' ? 'تسجيل ومتابعة البلاغات والشكاوى'
+                                        : 'Register and track reports and complaints' %>
+                                </p>
+                            </div>
 
-            <!-- قائمة البلاغات -->
-            <div class="luxury-card">
-                <div class="p-3">
-                    <% if (userReports && userReports.length > 0) { %>
-                        <div class="table-responsive">
-                            <table class="table table-luxury table-hover">
-                                <thead>
-                                    <tr>
-                                        <th><%= lang === 'ar' ? 'عنوان البلاغ' : 'Report Title' %></th>
-                                        <th><%= lang === 'ar' ? 'الوصف' : 'Description' %></th>
-                                        <th><%= lang === 'ar' ? 'النوع' : 'Type' %></th>
-                                        <th><%= lang === 'ar' ? 'تاريخ التسجيل' : 'Registration Date' %></th>
-                                        <th><%= t.status %></th>
-                                        <th><%= lang === 'ar' ? 'الإجراءات' : 'Actions' %></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% userReports.forEach(report => { %>
-                                    <tr>
-                                        <td>
-                                            <strong><%= report.title[lang] || report.title.ar %></strong>
-                                        </td>
-                                        <td>
-                                            <%= report.description ? (report.description.substring(0, 60) + (report.description.length > 60 ? '...' : '')) : '' %>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-<%= report.type === 'complaint' ? 'danger' : report.type === 'suggestion' ? 'info' : 'warning' %>">
-                                                <%= report.type === 'complaint' ? (lang === 'ar' ? 'شكوى' : 'Complaint') : 
-                                                   report.type === 'suggestion' ? (lang === 'ar' ? 'اقتراح' : 'Suggestion') : 
-                                                   (lang === 'ar' ? 'بلاغ' : 'Report') %>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <%= new Date(report.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US') %>
-                                        </td>
-                                        <td>
-                                            <span class="badge status-<%= report.status || 'pending' %>">
-                                                <%= report.status === 'resolved' ? t.completed : 
-                                                   report.status === 'in-progress' ? t.inProgress : 
-                                                   t.pending %>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group-luxury">
-                                                <button class="btn btn-outline-luxury btn-sm">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-outline-luxury btn-sm">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-outline-luxury btn-sm">
-                                                    <i class="fas fa-trash"></i>
+                            <!-- بطاقات الإحصائيات -->
+                            <div class="row mb-4">
+                                <div class="col-xl-3 col-md-6 mb-4">
+                                    <div class="stat-card">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h3 class="stat-number">
+                                                    <%= userReports ? userReports.length : 0 %>
+                                                </h3>
+                                                <p class="text-muted mb-0">
+                                                    <%= lang==='ar' ? 'إجمالي البلاغات' : 'Total Reports' %>
+                                                </p>
+                                            </div>
+                                            <div class="stat-icon">
+                                                <i class="fas fa-flag"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-md-6 mb-4">
+                                    <div class="stat-card">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h3 class="stat-number">
+                                                    <%= stats.pending %>
+                                                </h3>
+                                                <p class="text-muted mb-0">
+                                                    <%= lang==='ar' ? 'معلقة' : 'Pending' %>
+                                                </p>
+                                            </div>
+                                            <div class="stat-icon">
+                                                <i class="fas fa-clock"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-md-6 mb-4">
+                                    <div class="stat-card">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h3 class="stat-number">
+                                                    <%= stats.resolved %>
+                                                </h3>
+                                                <p class="text-muted mb-0">
+                                                    <%= lang==='ar' ? 'تم حلها' : 'Resolved' %>
+                                                </p>
+                                            </div>
+                                            <div class="stat-icon">
+                                                <i class="fas fa-check-circle"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-md-6 mb-4">
+                                    <div class="stat-card">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h3 class="stat-number">
+                                                    <%= stats.inProgress %>
+                                                </h3>
+                                                <p class="text-muted mb-0">
+                                                    <%= lang==='ar' ? 'قيد المعالجة' : 'In Progress' %>
+                                                </p>
+                                            </div>
+                                            <div class="stat-icon">
+                                                <i class="fas fa-spinner"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- زر إضافة بلاغ جديد -->
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="text-gold mb-0">
+                                    <i class="fas fa-list me-2"></i>
+                                    <%= lang==='ar' ? 'البلاغات المسجلة' : 'Registered Reports' %>
+                                </h5>
+                                <button class="btn btn-luxury" data-bs-toggle="modal" data-bs-target="#newReportModal">
+                                    <i class="fas fa-plus me-2"></i>
+                                    <%= lang==='ar' ? 'بلاغ جديد' : 'New Report' %>
+                                </button>
+                            </div>
+
+                            <!-- قائمة البلاغات -->
+                            <div class="luxury-card">
+                                <div class="p-3">
+                                    <% if (userReports && userReports.length> 0) { %>
+                                        <div class="table-responsive">
+                                            <table class="table table-luxury table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            <%= lang==='ar' ? 'عنوان البلاغ' : 'Report Title' %>
+                                                        </th>
+                                                        <th>
+                                                            <%= lang==='ar' ? 'الوصف' : 'Description' %>
+                                                        </th>
+                                                        <th>
+                                                            <%= lang==='ar' ? 'النوع' : 'Type' %>
+                                                        </th>
+                                                        <th>
+                                                            <%= lang==='ar' ? 'تاريخ التسجيل' : 'Registration Date' %>
+                                                        </th>
+                                                        <th>
+                                                            <%= t.status %>
+                                                        </th>
+                                                        <th>
+                                                            <%= lang==='ar' ? 'الإجراءات' : 'Actions' %>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% userReports.forEach(report=> { %>
+                                                        <tr>
+                                                            <td>
+                                                                <strong>
+                                                                    <%= report.title[lang] || report.title.ar %>
+                                                                </strong>
+                                                            </td>
+                                                            <td>
+                                                                <%= report.description ?
+                                                                    (report.description.substring(0, 60) +
+                                                                    (report.description.length> 60 ? '...' : '')) : ''
+                                                                    %>
+                                                            </td>
+                                                            <td>
+                                                                <span
+                                                                    class="badge bg-<%= report.type === 'complaint' ? 'danger' : report.type === 'suggestion' ? 'info' : 'warning' %>">
+                                                                    <%= report.type==='complaint' ? (lang==='ar'
+                                                                        ? 'شكوى' : 'Complaint' ) :
+                                                                        report.type==='suggestion' ? (lang==='ar'
+                                                                        ? 'اقتراح' : 'Suggestion' ) : (lang==='ar'
+                                                                        ? 'بلاغ' : 'Report' ) %>
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <%= new
+                                                                    Date(report.createdAt).toLocaleDateString(lang==='ar'
+                                                                    ? 'ar-SA' : 'en-US' ) %>
+                                                            </td>
+                                                            <td>
+                                                                <span
+                                                                    class="badge status-<%= report.status || 'pending' %>">
+                                                                    <%= report.status==='resolved' ? t.completed :
+                                                                        report.status==='in-progress' ? t.inProgress :
+                                                                        t.pending %>
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <div class="btn-group-luxury">
+                                                                    <button class="btn btn-outline-luxury btn-sm">
+                                                                        <i class="fas fa-eye"></i>
+                                                                    </button>
+                                                                    <button class="btn btn-outline-luxury btn-sm">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </button>
+                                                                    <button class="btn btn-outline-luxury btn-sm">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <% }) %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <% } else { %>
+                                            <div class="text-center py-5">
+                                                <i class="fas fa-flag fa-3x text-muted mb-3"></i>
+                                                <h4 class="text-muted">
+                                                    <%= lang==='ar' ? 'لا توجد بلاغات مسجلة' : 'No reports registered'
+                                                        %>
+                                                </h4>
+                                                <p class="text-muted mb-4">
+                                                    <%= lang==='ar' ? 'يمكنك تسجيل بلاغ جديد باستخدام الزر أعلاه'
+                                                        : 'You can register a new report using the button above' %>
+                                                </p>
+                                                <button class="btn btn-luxury" data-bs-toggle="modal"
+                                                    data-bs-target="#newReportModal">
+                                                    <i class="fas fa-plus me-2"></i>
+                                                    <%= lang==='ar' ? 'تسجيل بلاغ جديد' : 'Register New Report' %>
                                                 </button>
                                             </div>
-                                        </td>
-                                    </tr>
-                                    <% }) %>
-                                </tbody>
-                            </table>
-                        </div>
-                    <% } else { %>
-                        <div class="text-center py-5">
-                            <i class="fas fa-flag fa-3x text-muted mb-3"></i>
-                            <h4 class="text-muted"><%= lang === 'ar' ? 'لا توجد بلاغات مسجلة' : 'No reports registered' %></h4>
-                            <p class="text-muted mb-4">
-                                <%= lang === 'ar' ? 'يمكنك تسجيل بلاغ جديد باستخدام الزر أعلاه' : 'You can register a new report using the button above' %>
-                            </p>
-                            <button class="btn btn-luxury" data-bs-toggle="modal" data-bs-target="#newReportModal">
-                                <i class="fas fa-plus me-2"></i>
-                                <%= lang === 'ar' ? 'تسجيل بلاغ جديد' : 'Register New Report' %>
-                            </button>
-                        </div>
-                    <% } %>
-                </div>
-            </div>
+                                            <% } %>
+                                </div>
+                            </div>
 
-            <!-- البلاغات الحديثة -->
-            <div class="row mt-4">
-                <div class="col-lg-6">
-                    <div class="luxury-card h-100">
-                        <div class="p-3 border-bottom">
-                            <h5 class="mb-0 text-gold">
-                                <i class="fas fa-history me-2"></i>
-                                <%= lang === 'ar' ? 'آخر التحديثات' : 'Recent Updates' %>
-                            </h5>
-                        </div>
-                        <div class="p-3">
-                            <div class="activity-list">
-                                <div class="activity-item">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <h6 class="mb-1"><%= lang === 'ar' ? 'تم تحديث حالة البلاغ' : 'Report status updated' %></h6>
-                                            <small class="text-muted"><%= lang === 'ar' ? 'بلاغ نظام التكييف' : 'Air conditioning system report' %></small>
+                            <!-- البلاغات الحديثة -->
+                            <div class="row mt-4">
+                                <div class="col-lg-6">
+                                    <div class="luxury-card h-100">
+                                        <div class="p-3 border-bottom">
+                                            <h5 class="mb-0 text-gold">
+                                                <i class="fas fa-history me-2"></i>
+                                                <%= lang==='ar' ? 'آخر التحديثات' : 'Recent Updates' %>
+                                            </h5>
                                         </div>
-                                        <small class="text-muted"><%= lang === 'ar' ? 'منذ ساعتين' : '2 hours ago' %></small>
+                                        <div class="p-3">
+                                            <div class="activity-list">
+                                                <div class="activity-item">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <div>
+                                                            <h6 class="mb-1">
+                                                                <%= lang==='ar' ? 'تم تحديث حالة البلاغ'
+                                                                    : 'Report status updated' %>
+                                                            </h6>
+                                                            <small class="text-muted">
+                                                                <%= lang==='ar' ? 'بلاغ نظام التكييف'
+                                                                    : 'Air conditioning system report' %>
+                                                            </small>
+                                                        </div>
+                                                        <small class="text-muted">
+                                                            <%= lang==='ar' ? 'منذ ساعتين' : '2 hours ago' %>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <div class="activity-item">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <div>
+                                                            <h6 class="mb-1">
+                                                                <%= lang==='ar' ? 'تم إضافة تعليق جديد'
+                                                                    : 'New comment added' %>
+                                                            </h6>
+                                                            <small class="text-muted">
+                                                                <%= lang==='ar' ? 'بلاغ خدمات الغرف'
+                                                                    : 'Room service report' %>
+                                                            </small>
+                                                        </div>
+                                                        <small class="text-muted">
+                                                            <%= lang==='ar' ? 'منذ يوم' : '1 day ago' %>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <div class="activity-item">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <div>
+                                                            <h6 class="mb-1">
+                                                                <%= lang==='ar' ? 'تم حل البلاغ' : 'Report resolved' %>
+                                                            </h6>
+                                                            <small class="text-muted">
+                                                                <%= lang==='ar' ? 'بلاغ النظافة' : 'Cleaning report' %>
+                                                            </small>
+                                                        </div>
+                                                        <small class="text-muted">
+                                                            <%= lang==='ar' ? 'منذ 3 أيام' : '3 days ago' %>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="activity-item">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <h6 class="mb-1"><%= lang === 'ar' ? 'تم إضافة تعليق جديد' : 'New comment added' %></h6>
-                                            <small class="text-muted"><%= lang === 'ar' ? 'بلاغ خدمات الغرف' : 'Room service report' %></small>
+                                <div class="col-lg-6">
+                                    <div class="luxury-card h-100">
+                                        <div class="p-3 border-bottom">
+                                            <h5 class="mb-0 text-gold">
+                                                <i class="fas fa-chart-bar me-2"></i>
+                                                <%= lang==='ar' ? 'إحصائيات البلاغات' : 'Reports Statistics' %>
+                                            </h5>
                                         </div>
-                                        <small class="text-muted"><%= lang === 'ar' ? 'منذ يوم' : '1 day ago' %></small>
-                                    </div>
-                                </div>
-                                <div class="activity-item">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <h6 class="mb-1"><%= lang === 'ar' ? 'تم حل البلاغ' : 'Report resolved' %></h6>
-                                            <small class="text-muted"><%= lang === 'ar' ? 'بلاغ النظافة' : 'Cleaning report' %></small>
+                                        <div class="p-4 text-center">
+                                            <div class="mb-4">
+                                                <h2 class="text-gold">
+                                                    <%= stats.total %>
+                                                </h2>
+                                                <p class="text-muted">
+                                                    <%= lang==='ar' ? 'إجمالي البلاغات' : 'Total Reports' %>
+                                                </p>
+                                            </div>
+                                            <div class="row text-center">
+                                                <div class="col-4">
+                                                    <h5 class="text-gold">
+                                                        <%= stats.pending %>
+                                                    </h5>
+                                                    <small class="text-muted">
+                                                        <%= lang==='ar' ? 'معلقة' : 'Pending' %>
+                                                    </small>
+                                                </div>
+                                                <div class="col-4">
+                                                    <h5 class="text-gold">
+                                                        <%= stats.resolved %>
+                                                    </h5>
+                                                    <small class="text-muted">
+                                                        <%= lang==='ar' ? 'تم حلها' : 'Resolved' %>
+                                                    </small>
+                                                </div>
+                                                <div class="col-4">
+                                                    <h5 class="text-gold">
+                                                        <%= stats.inProgress %>
+                                                    </h5>
+                                                    <small class="text-muted">
+                                                        <%= lang==='ar' ? 'قيد المعالجة' : 'In Progress' %>
+                                                    </small>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <small class="text-muted"><%= lang === 'ar' ? 'منذ 3 أيام' : '3 days ago' %></small>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="luxury-card h-100">
-                        <div class="p-3 border-bottom">
-                            <h5 class="mb-0 text-gold">
-                                <i class="fas fa-chart-bar me-2"></i>
-                                <%= lang === 'ar' ? 'إحصائيات البلاغات' : 'Reports Statistics' %>
-                            </h5>
-                        </div>
-                        <div class="p-4 text-center">
-                            <div class="mb-4">
-                                <h2 class="text-gold">16</h2>
-                                <p class="text-muted"><%= lang === 'ar' ? 'إجمالي البلاغات' : 'Total Reports' %></p>
-                            </div>
-                            <div class="row text-center">
-                                <div class="col-4">
-                                    <h5 class="text-gold">5</h5>
-                                    <small class="text-muted"><%= lang === 'ar' ? 'معلقة' : 'Pending' %></small>
-                                </div>
-                                <div class="col-4">
-                                    <h5 class="text-gold">8</h5>
-                                    <small class="text-muted"><%= lang === 'ar' ? 'تم حلها' : 'Resolved' %></small>
-                                </div>
-                                <div class="col-4">
-                                    <h5 class="text-gold">3</h5>
-                                    <small class="text-muted"><%= lang === 'ar' ? 'قيد المعالجة' : 'In Progress' %></small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -323,58 +439,89 @@
                 <div class="modal-header">
                     <h5 class="modal-title text-gold">
                         <i class="fas fa-plus me-2"></i>
-                        <%= lang === 'ar' ? 'تسجيل بلاغ جديد' : 'Register New Report' %>
+                        <%= lang==='ar' ? 'تسجيل بلاغ جديد' : 'Register New Report' %>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form id="newReportForm" action="/user/reports?lang=<%= lang %>" method="POST">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><%= lang === 'ar' ? 'نوع البلاغ' : 'Report Type' %></label>
-                                <select class="form-select">
-                                    <option value=""><%= lang === 'ar' ? 'اختر النوع' : 'Select Type' %></option>
-                                    <option value="complaint"><%= lang === 'ar' ? 'شكوى' : 'Complaint' %></option>
-                                    <option value="suggestion"><%= lang === 'ar' ? 'اقتراح' : 'Suggestion' %></option>
-                                    <option value="report"><%= lang === 'ar' ? 'بلاغ' : 'Report' %></option>
+                                <label class="form-label">
+                                    <%= lang==='ar' ? 'نوع البلاغ' : 'Report Type' %> <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" name="type" required>
+                                    <option value="">
+                                        <%= lang==='ar' ? 'اختر النوع' : 'Select Type' %>
+                                    </option>
+                                    <option value="complaint">
+                                        <%= lang==='ar' ? 'شكوى' : 'Complaint' %>
+                                    </option>
+                                    <option value="suggestion">
+                                        <%= lang==='ar' ? 'اقتراح' : 'Suggestion' %>
+                                    </option>
+                                    <option value="report">
+                                        <%= lang==='ar' ? 'بلاغ' : 'Report' %>
+                                    </option>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><%= lang === 'ar' ? 'القسم' : 'Department' %></label>
-                                <select class="form-select">
-                                    <option value=""><%= lang === 'ar' ? 'اختر القسم' : 'Select Department' %></option>
-                                    <option value="reception"><%= lang === 'ar' ? 'الاستقبال' : 'Reception' %></option>
-                                    <option value="room-service"><%= lang === 'ar' ? 'خدمات الغرف' : 'Room Service' %></option>
-                                    <option value="kitchen"><%= lang === 'ar' ? 'المطبخ' : 'Kitchen' %></option>
-                                    <option value="maintenance"><%= lang === 'ar' ? 'الصيانة' : 'Maintenance' %></option>
+                                <label class="form-label">
+                                    <%= lang==='ar' ? 'القسم' : 'Department' %> <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" name="department" required>
+                                    <option value="">
+                                        <%= lang==='ar' ? 'اختر القسم' : 'Select Department' %>
+                                    </option>
+                                    <% departments.forEach(dept=> { %>
+                                        <option value="<%= dept._id %>">
+                                            <%= lang==='ar' ? dept.name.ar : dept.name.en %>
+                                        </option>
+                                        <% }) %>
                                 </select>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label"><%= lang === 'ar' ? 'عنوان البلاغ' : 'Report Title' %></label>
-                            <input type="text" class="form-control" placeholder="<%= lang === 'ar' ? 'أدخل عنوان البلاغ' : 'Enter report title' %>">
+                            <label class="form-label">
+                                <%= lang==='ar' ? 'عنوان البلاغ' : 'Report Title' %> <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" name="title" required
+                                placeholder="<%= lang==='ar' ? 'أدخل عنوان البلاغ' : 'Enter report title' %>">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label"><%= lang === 'ar' ? 'وصف البلاغ' : 'Report Description' %></label>
-                            <textarea class="form-control" rows="4" placeholder="<%= lang === 'ar' ? 'أدخل وصف مفصل للبلاغ' : 'Enter detailed report description' %>"></textarea>
+                            <label class="form-label">
+                                <%= lang==='ar' ? 'وصف البلاغ' : 'Report Description' %> <span
+                                        class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control" name="description" rows="4" required
+                                placeholder="<%= lang==='ar' ? 'أدخل وصف مفصل للبلاغ' : 'Enter detailed report description' %>"></textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label"><%= lang === 'ar' ? 'الأولوية' : 'Priority' %></label>
-                            <select class="form-select">
-                                <option value="low"><%= lang === 'ar' ? 'منخفض' : 'Low' %></option>
-                                <option value="medium"><%= lang === 'ar' ? 'متوسط' : 'Medium' %></option>
-                                <option value="high"><%= lang === 'ar' ? 'عالي' : 'High' %></option>
+                            <label class="form-label">
+                                <%= lang==='ar' ? 'الأولوية' : 'Priority' %> <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" name="priority" required>
+                                <option value="low">
+                                    <%= lang==='ar' ? 'منخفض' : 'Low' %>
+                                </option>
+                                <option value="medium" selected>
+                                    <%= lang==='ar' ? 'متوسط' : 'Medium' %>
+                                </option>
+                                <option value="high">
+                                    <%= lang==='ar' ? 'عالي' : 'High' %>
+                                </option>
                             </select>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-luxury" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>
                         <%= t.cancel %>
                     </button>
-                    <button type="button" class="btn btn-luxury">
+                    <button type="submit" form="newReportForm" class="btn btn-luxury">
                         <i class="fas fa-save me-2"></i>
-                        <%= t.save %>
+                        <%= lang==='ar' ? 'تسجيل البلاغ' : 'Submit Report' %>
                     </button>
                 </div>
             </div>
@@ -387,14 +534,15 @@
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
-        
+
         function toggleSidebar() {
             sidebar.classList.toggle('show');
             overlay.classList.toggle('show');
         }
-        
+
         mobileMenuBtn.addEventListener('click', toggleSidebar);
         overlay.addEventListener('click', toggleSidebar);
     </script>
 </body>
+
 </html>

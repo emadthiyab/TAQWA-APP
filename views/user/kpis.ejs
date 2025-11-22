@@ -1,33 +1,42 @@
 <!DOCTYPE html>
 <html lang="<%= lang %>" dir="<%= dir %>">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= t.myKPIs %> - <%= t.hotelName %></title>
+    <title>
+        <%= t.myKPIs %> - <%= t.hotelName %>
+    </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     <%- include('../partials/styles') %>
 </head>
+
 <body class="dashboard-bg">
     <!-- زر القائمة للموبايل -->
     <button class="mobile-menu-btn" id="mobileMenuBtn">
         <i class="fas fa-bars"></i>
     </button>
-    
+
     <!-- Overlay للجوال -->
     <div class="overlay" id="overlay"></div>
-    
+
     <!-- الشريط الجانبي -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo">
-                <img src="/images/logo.png" alt="<%= t.hotelName %>" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iNDAiIGZpbGw9IiNEMEFGMzciLz4KPC9zdmc+Cg=='">
+                <img src="/images/logo.png" alt="<%= t.hotelName %>"
+                    onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iNDAiIGZpbGw9IiNEMEFGMzciLz4KPC9zdmc+Cg=='">
             </div>
-            <h5 class="text-gold mb-1"><%= t.hotelName %></h5>
-            <small class="text-light"><%= t.userDashboard %></small>
+            <h5 class="text-gold mb-1">
+                <%= t.hotelName %>
+            </h5>
+            <small class="text-light">
+                <%= t.userDashboard %>
+            </small>
         </div>
-        
+
         <nav class="nav flex-column">
             <a href="/user/dashboard?lang=<%= lang %>" class="nav-link">
                 <span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span>
@@ -50,7 +59,7 @@
                 <%= t.profile %>
             </a>
         </nav>
-        
+
         <div class="mt-auto p-3 border-top">
             <form action="/logout" method="POST" class="d-grid">
                 <input type="hidden" name="lang" value="<%= lang %>">
@@ -61,7 +70,7 @@
             </form>
         </div>
     </div>
-    
+
     <!-- المحتوى الرئيسي -->
     <div class="dashboard-content">
         <nav class="navbar navbar-luxury">
@@ -72,18 +81,18 @@
                         <%= t.myKPIs %>
                     </h4>
                 </div>
-                
+
                 <div class="navbar-right">
                     <div class="language-menu">
                         <a href="?lang=<%= lang === 'ar' ? 'en' : 'ar' %>" class="btn btn-lang">
                             <i class="fas fa-globe me-2"></i>
-                            <%= lang === 'ar' ? 'English' : 'العربية' %>
+                            <%= lang==='ar' ? 'English' : 'العربية' %>
                         </a>
                     </div>
                 </div>
             </div>
         </nav>
-        
+
         <div class="content-wrapper">
             <div class="dashboard-header mb-4">
                 <h1 class="welcome-message">
@@ -91,7 +100,8 @@
                     <%= t.myKPIs %>
                 </h1>
                 <p class="sub-message">
-                    <%= lang === 'ar' ? 'متابعة مؤشرات الأداء الشخصية وتقدمها' : 'Track your personal performance indicators and progress' %>
+                    <%= lang==='ar' ? 'متابعة مؤشرات الأداء الشخصية وتقدمها'
+                        : 'Track your personal performance indicators and progress' %>
                 </p>
             </div>
 
@@ -101,8 +111,12 @@
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h3 class="stat-number"><%= userKPIs ? userKPIs.length : 0 %></h3>
-                                <p class="text-muted mb-0"><%= lang === 'ar' ? 'إجمالي المؤشرات' : 'Total KPIs' %></p>
+                                <h3 class="stat-number">
+                                    <%= userKPIs ? userKPIs.length : 0 %>
+                                </h3>
+                                <p class="text-muted mb-0">
+                                    <%= lang==='ar' ? 'إجمالي المؤشرات' : 'Total KPIs' %>
+                                </p>
                             </div>
                             <div class="stat-icon">
                                 <i class="fas fa-chart-line"></i>
@@ -114,8 +128,18 @@
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h3 class="stat-number">85%</h3>
-                                <p class="text-muted mb-0"><%= lang === 'ar' ? 'متوسط الإنجاز' : 'Average Completion' %></p>
+                                <h3 class="stat-number">
+                                    <% let avgProgress=0; if (userKPIs && userKPIs.length> 0) {
+                                        const totalProgress = userKPIs.reduce((sum, kpi) => sum + (kpi.progress || 0),
+                                        0);
+                                        avgProgress = Math.round(totalProgress / userKPIs.length);
+                                        }
+                                        %>
+                                        <%= avgProgress %>%
+                                </h3>
+                                <p class="text-muted mb-0">
+                                    <%= lang==='ar' ? 'متوسط الإنجاز' : 'Average Completion' %>
+                                </p>
                             </div>
                             <div class="stat-icon">
                                 <i class="fas fa-percentage"></i>
@@ -127,8 +151,13 @@
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h3 class="stat-number">8</h3>
-                                <p class="text-muted mb-0"><%= lang === 'ar' ? 'مكتملة' : 'Completed' %></p>
+                                <h3 class="stat-number">
+                                    <%= userKPIs ? userKPIs.filter(k=> k.status === 'مكتمل' || k.status ===
+                                        'completed').length : 0 %>
+                                </h3>
+                                <p class="text-muted mb-0">
+                                    <%= lang==='ar' ? 'مكتملة' : 'Completed' %>
+                                </p>
                             </div>
                             <div class="stat-icon">
                                 <i class="fas fa-check-circle"></i>
@@ -140,8 +169,13 @@
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h3 class="stat-number">4</h3>
-                                <p class="text-muted mb-0"><%= lang === 'ar' ? 'قيد التنفيذ' : 'In Progress' %></p>
+                                <h3 class="stat-number">
+                                    <%= userKPIs ? userKPIs.filter(k=> k.status === 'في التقدم' || k.status ===
+                                        'in-progress').length : 0 %>
+                                </h3>
+                                <p class="text-muted mb-0">
+                                    <%= lang==='ar' ? 'قيد التنفيذ' : 'In Progress' %>
+                                </p>
                             </div>
                             <div class="stat-icon">
                                 <i class="fas fa-spinner"></i>
@@ -156,10 +190,11 @@
                 <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 text-gold">
                         <i class="fas fa-list me-2"></i>
-                        <%= lang === 'ar' ? 'مؤشرات الأداء الشخصية' : 'Personal Performance Indicators' %>
+                        <%= lang==='ar' ? 'مؤشرات الأداء الشخصية' : 'Personal Performance Indicators' %>
                     </h5>
                     <div class="d-flex gap-2">
-                        <input type="text" class="form-control form-control-sm" placeholder="<%= t.search %>..." style="width: 200px;">
+                        <input type="text" class="form-control form-control-sm" placeholder="<%= t.search %>..."
+                            style="width: 200px;">
                         <button class="btn btn-luxury btn-sm">
                             <i class="fas fa-search me-1"></i>
                             <%= t.search %>
@@ -167,117 +202,163 @@
                     </div>
                 </div>
                 <div class="p-3">
-                    <% if (userKPIs && userKPIs.length > 0) { %>
+                    <% if (userKPIs && userKPIs.length> 0) { %>
                         <div class="table-responsive">
                             <table class="table table-luxury table-hover">
                                 <thead>
                                     <tr>
-                                        <th><%= t.kpiName %></th>
-                                        <th><%= t.kpiTarget %></th>
-                                        <th><%= lang === 'ar' ? 'القيمة الحالية' : 'Current Value' %></th>
-                                        <th><%= t.kpiProgress %></th>
-                                        <th><%= lang === 'ar' ? 'الموعد النهائي' : 'Deadline' %></th>
-                                        <th><%= t.status %></th>
-                                        <th><%= lang === 'ar' ? 'الإجراءات' : 'Actions' %></th>
+                                        <th>
+                                            <%= t.kpiName %>
+                                        </th>
+                                        <th>
+                                            <%= t.kpiTarget %>
+                                        </th>
+                                        <th>
+                                            <%= lang==='ar' ? 'القيمة الحالية' : 'Current Value' %>
+                                        </th>
+                                        <th>
+                                            <%= t.kpiProgress %>
+                                        </th>
+                                        <th>
+                                            <%= lang==='ar' ? 'الموعد النهائي' : 'Deadline' %>
+                                        </th>
+                                        <th>
+                                            <%= t.status %>
+                                        </th>
+                                        <th>
+                                            <%= lang==='ar' ? 'الإجراءات' : 'Actions' %>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% userKPIs.forEach(kpi => { %>
-                                    <tr>
-                                        <td>
-                                            <strong><%= kpi.name[lang] || kpi.name.ar %></strong>
-                                            <% if (kpi.description) { %>
-                                            <br>
-                                            <small class="text-muted"><%= kpi.description %></small>
-                                            <% } %>
-                                        </td>
-                                        <td>
-                                            <strong><%= kpi.target %></strong>
-                                            <small class="text-muted"><%= kpi.unit || '' %></small>
-                                        </td>
-                                        <td>
-                                            <strong><%= kpi.currentValue || 0 %></strong>
-                                            <small class="text-muted"><%= kpi.unit || '' %></small>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="kpi-progress me-2" style="width: 100px;">
-                                                    <div class="progress-bar" style="width: <%= kpi.progress || 0 %>%;"></div>
+                                    <% userKPIs.forEach(kpi=> { %>
+                                        <tr>
+                                            <td>
+                                                <strong>
+                                                    <%= kpi.name[lang] || kpi.name.ar %>
+                                                </strong>
+                                                <% if (kpi.description) { %>
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        <%= kpi.description %>
+                                                    </small>
+                                                    <% } %>
+                                            </td>
+                                            <td>
+                                                <strong>
+                                                    <%= kpi.target %>
+                                                </strong>
+                                                <small class="text-muted">
+                                                    <%= kpi.unit || '' %>
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <strong>
+                                                    <%= kpi.currentValue || 0 %>
+                                                </strong>
+                                                <small class="text-muted">
+                                                    <%= kpi.unit || '' %>
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="kpi-progress me-2" style="width: 100px;">
+                                                        <div class="progress-bar"
+                                                            style="width: <%= kpi.progress || 0 %>%;"></div>
+                                                    </div>
+                                                    <span>
+                                                        <%= kpi.progress || 0 %>%
+                                                    </span>
                                                 </div>
-                                                <span><%= kpi.progress || 0 %>%</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <%= kpi.deadline ? new Date(kpi.deadline).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US') : lang === 'ar' ? 'غير محدد' : 'Not set' %>
-                                        </td>
-                                        <td>
-                                            <span class="badge status-<%= kpi.status || 'pending' %>">
-                                                <%= kpi.status === 'completed' ? t.completed : 
-                                                   kpi.status === 'in-progress' ? t.inProgress : 
-                                                   t.pending %>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group-luxury">
-                                                <button class="btn btn-outline-luxury btn-sm">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-outline-luxury btn-sm">
-                                                    <i class="fas fa-chart-line"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <% }) %>
+                                            </td>
+                                            <td>
+                                                <%= kpi.deadline ? new Date(kpi.deadline).toLocaleDateString(lang==='ar'
+                                                    ? 'ar-SA' : 'en-US' ) : lang==='ar' ? 'غير محدد' : 'Not set' %>
+                                            </td>
+                                            <td>
+                                                <span class="badge status-<%= kpi.status || 'pending' %>">
+                                                    <%= kpi.status==='completed' ? t.completed :
+                                                        kpi.status==='in-progress' ? t.inProgress : t.pending %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group-luxury">
+                                                    <button class="btn btn-outline-luxury btn-sm">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-luxury btn-sm">
+                                                        <i class="fas fa-chart-line"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
                                 </tbody>
                             </table>
                         </div>
-                    <% } else { %>
-                        <div class="text-center py-5">
-                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
-                            <h4 class="text-muted"><%= lang === 'ar' ? 'لا توجد مؤشرات أداء مخصصة' : 'No performance indicators assigned' %></h4>
-                            <p class="text-muted mb-4">
-                                <%= lang === 'ar' ? 'سيتم تعيين مؤشرات الأداء الخاصة بك من قبل الإدارة قريباً' : 'Your performance indicators will be assigned by management soon' %>
-                            </p>
-                            <button class="btn btn-luxury">
-                                <i class="fas fa-sync-alt me-2"></i>
-                                <%= lang === 'ar' ? 'تحديث الصفحة' : 'Refresh Page' %>
-                            </button>
-                        </div>
-                    <% } %>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                                <h4 class="text-muted">
+                                    <%= lang==='ar' ? 'لا توجد مؤشرات أداء مخصصة' : 'No performance indicators assigned'
+                                        %>
+                                </h4>
+                                <p class="text-muted mb-4">
+                                    <%= lang==='ar' ? 'سيتم تعيين مؤشرات الأداء الخاصة بك من قبل الإدارة قريباً'
+                                        : 'Your performance indicators will be assigned by management soon' %>
+                                </p>
+                                <button class="btn btn-luxury">
+                                    <i class="fas fa-sync-alt me-2"></i>
+                                    <%= lang==='ar' ? 'تحديث الصفحة' : 'Refresh Page' %>
+                                </button>
+                            </div>
+                            <% } %>
                 </div>
             </div>
 
-            <!-- مؤشرات الأداء الشهرية -->
+            <!-- ملخص الأداء -->
             <div class="row mt-4">
                 <div class="col-lg-6">
                     <div class="luxury-card h-100">
                         <div class="p-3 border-bottom">
                             <h5 class="mb-0 text-gold">
                                 <i class="fas fa-trend-up me-2"></i>
-                                <%= lang === 'ar' ? 'تقدم الأداء الشهري' : 'Monthly Performance Progress' %>
+                                <%= lang==='ar' ? 'ملخص الأداء' : 'Performance Summary' %>
                             </h5>
                         </div>
                         <div class="p-4">
                             <div class="text-center">
-                                <div class="mb-4">
-                                    <h2 class="text-gold">92%</h2>
-                                    <p class="text-muted"><%= lang === 'ar' ? 'متوسط الأداء' : 'Average Performance' %></p>
-                                </div>
-                                <div class="row text-center">
-                                    <div class="col-4">
-                                        <h5 class="text-gold">95%</h5>
-                                        <small class="text-muted"><%= lang === 'ar' ? 'الجودة' : 'Quality' %></small>
+                                <% let totalKPIs=userKPIs ? userKPIs.length : 0; let completedKPIs=userKPIs ?
+                                    userKPIs.filter(k=> k.status === 'مكتمل' || k.status === 'completed').length : 0;
+                                    let completionRate = totalKPIs > 0 ? Math.round((completedKPIs / totalKPIs) * 100) :
+                                    0;
+                                    %>
+                                    <div class="mb-4">
+                                        <h2 class="text-gold">
+                                            <%= completionRate %>%
+                                        </h2>
+                                        <p class="text-muted">
+                                            <%= lang==='ar' ? 'نسبة إنجاز المؤشرات' : 'KPI Completion Rate' %>
+                                        </p>
                                     </div>
-                                    <div class="col-4">
-                                        <h5 class="text-gold">88%</h5>
-                                        <small class="text-muted"><%= lang === 'ar' ? 'الإنتاجية' : 'Productivity' %></small>
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <h5 class="text-gold">
+                                                <%= completedKPIs %>
+                                            </h5>
+                                            <small class="text-muted">
+                                                <%= lang==='ar' ? 'مكتمل' : 'Completed' %>
+                                            </small>
+                                        </div>
+                                        <div class="col-6">
+                                            <h5 class="text-gold">
+                                                <%= totalKPIs - completedKPIs %>
+                                            </h5>
+                                            <small class="text-muted">
+                                                <%= lang==='ar' ? 'متبقي' : 'Remaining' %>
+                                            </small>
+                                        </div>
                                     </div>
-                                    <div class="col-4">
-                                        <h5 class="text-gold">93%</h5>
-                                        <small class="text-muted"><%= lang === 'ar' ? 'الوقت' : 'Time' %></small>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -287,44 +368,40 @@
                         <div class="p-3 border-bottom">
                             <h5 class="mb-0 text-gold">
                                 <i class="fas fa-trophy me-2"></i>
-                                <%= lang === 'ar' ? 'الإنجازات' : 'Achievements' %>
+                                <%= lang==='ar' ? 'أحدث الإنجازات' : 'Latest Achievements' %>
                             </h5>
                         </div>
                         <div class="p-3">
                             <div class="activity-list">
-                                <div class="activity-item">
-                                    <div class="d-flex align-items-center">
-                                        <div class="achievement-badge me-3">
-                                            <i class="fas fa-award"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1"><%= lang === 'ar' ? 'موظف الشهر' : 'Employee of the Month' %></h6>
-                                            <small class="text-muted"><%= lang === 'ar' ? 'ديسمبر 2024' : 'December 2024' %></small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="activity-item">
-                                    <div class="d-flex align-items-center">
-                                        <div class="achievement-badge me-3">
-                                            <i class="fas fa-star"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1"><%= lang === 'ar' ? 'أفضل أداء' : 'Best Performance' %></h6>
-                                            <small class="text-muted"><%= lang === 'ar' ? 'ربع سنوي' : 'Quarterly' %></small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="activity-item">
-                                    <div class="d-flex align-items-center">
-                                        <div class="achievement-badge me-3">
-                                            <i class="fas fa-check-circle"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1"><%= lang === 'ar' ? 'إتمام جميع المؤشرات' : 'All KPIs Completed' %></h6>
-                                            <small class="text-muted"><%= lang === 'ar' ? 'الشهر الماضي' : 'Last Month' %></small>
+                                <% const completedItems=userKPIs ? userKPIs.filter(k=> k.status === 'مكتمل' || k.status
+                                    === 'completed') : [];
+                                    if (completedItems.length > 0) {
+                                    completedItems.slice(0, 3).forEach(kpi => {
+                                    %>
+                                    <div class="activity-item">
+                                        <div class="d-flex align-items-center">
+                                            <div class="achievement-badge me-3">
+                                                <i class="fas fa-check-circle"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1">
+                                                    <%= lang==='ar' ? 'إكمال مؤشر: ' : 'Completed KPI: ' %>
+                                                        <%= kpi.name[lang] || kpi.name.ar %>
+                                                </h6>
+                                                <small class="text-muted">
+                                                    <%= new Date(kpi.updatedAt).toLocaleDateString(lang==='ar' ? 'ar-SA'
+                                                        : 'en-US' ) %>
+                                                </small>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                    <% }); } else { %>
+                                        <div class="text-center py-4">
+                                            <p class="text-muted mb-0">
+                                                <%= lang==='ar' ? 'لا توجد إنجازات حديثة' : 'No recent achievements' %>
+                                            </p>
+                                        </div>
+                                        <% } %>
                             </div>
                         </div>
                     </div>
@@ -339,14 +416,15 @@
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
-        
+
         function toggleSidebar() {
             sidebar.classList.toggle('show');
             overlay.classList.toggle('show');
         }
-        
+
         mobileMenuBtn.addEventListener('click', toggleSidebar);
         overlay.addEventListener('click', toggleSidebar);
     </script>
 </body>
+
 </html>

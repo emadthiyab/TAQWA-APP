@@ -1,310 +1,438 @@
 <!DOCTYPE html>
 <html lang="<%= lang %>" dir="<%= dir %>">
+
 <head>
     <%- include('../partials/head') %>
-    <style>
-        .evaluation-card {
-            border-left: 4px solid var(--gold);
-            transition: all 0.3s ease;
-        }
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        .status-draft { background: #fff3cd; color: #856404; }
-        .status-in_progress { background: #d1edff; color: #0c5460; }
-        .status-completed { background: #d1f7e6; color: #0f5132; }
-        .status-approved { background: #d1f7e6; color: #0f5132; }
-        .status-rejected { background: #f8d7da; color: #721c24; }
-    </style>
+        <style>
+            .evaluation-card {
+                border-left: 4px solid var(--gold);
+                transition: all 0.3s ease;
+            }
+
+            .status-badge {
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 600;
+            }
+
+            .status-draft {
+                background: #fff3cd;
+                color: #856404;
+            }
+
+            .status-in_progress {
+                background: #d1edff;
+                color: #0c5460;
+            }
+
+            .status-completed {
+                background: #d1f7e6;
+                color: #0f5132;
+            }
+
+            .status-approved {
+                background: #d1f7e6;
+                color: #0f5132;
+            }
+
+            .status-rejected {
+                background: #f8d7da;
+                color: #721c24;
+            }
+        </style>
 </head>
+
 <body class="dashboard-bg">
     <%- include('../partials/sidebar') %>
-    
-    <div class="main-content">
-        <%- include('../partials/navbar', { title: title }) %>
-        
-        <div class="container-fluid py-4">
-            <!-- رسائل النجاح/الخطأ -->
-            <% if (success) { %>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle me-2"></i>
-                <% if (success === 'evaluation_created') { %>
-                    <%= lang === 'ar' ? 'تم إنشاء التقييم بنجاح!' : 'Evaluation created successfully!' %>
-                <% } else if (success === 'evaluation_updated') { %>
-                    <%= lang === 'ar' ? 'تم تحديث التقييم بنجاح!' : 'Evaluation updated successfully!' %>
-                <% } else if (success === 'evaluation_deleted') { %>
-                    <%= lang === 'ar' ? 'تم حذف التقييم بنجاح!' : 'Evaluation deleted successfully!' %>
-                <% } %>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <% } %>
-            
-            <% if (error) { %>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <% if (error === 'employee_not_found') { %>
-                    <%= lang === 'ar' ? 'الموظف غير موجود' : 'Employee not found' %>
-                <% } else if (error === 'evaluation_exists') { %>
-                    <%= lang === 'ar' ? 'يوجد تقييم بالفعل لهذه الفترة' : 'Evaluation already exists for this period' %>
-                <% } else if (error === 'evaluation_create_failed') { %>
-                    <%= lang === 'ar' ? 'فشل في إنشاء التقييم' : 'Failed to create evaluation' %>
-                <% } %>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <% } %>
 
-            <div class="row">
-                <div class="col-lg-4">
-                    <!-- نموذج بدء تقييم جديد -->
-                    <div class="luxury-card p-4 mb-4">
-                        <h5 class="text-gold mb-3">
+        <div class="main-content">
+            <%- include('../partials/navbar', { title: title }) %>
+
+                <div class="container-fluid py-4">
+                    <!-- رسائل النجاح/الخطأ -->
+                    <% if (success) { %>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <% if (success==='evaluation_created' ) { %>
+                                <%= lang==='ar' ? 'تم إنشاء التقييم بنجاح!' : 'Evaluation created successfully!' %>
+                                    <% } else if (success==='evaluation_updated' ) { %>
+                                        <%= lang==='ar' ? 'تم تحديث التقييم بنجاح!' : 'Evaluation updated successfully!'
+                                            %>
+                                            <% } else if (success==='evaluation_deleted' ) { %>
+                                                <%= lang==='ar' ? 'تم حذف التقييم بنجاح!'
+                                                    : 'Evaluation deleted successfully!' %>
+                                                    <% } %>
+                                                        <button type="button" class="btn-close"
+                                                            data-bs-dismiss="alert"></button>
+                        </div>
+                        <% } %>
+
+                            <% if (error) { %>
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <% if (error==='employee_not_found' ) { %>
+                                        <%= lang==='ar' ? 'الموظف غير موجود' : 'Employee not found' %>
+                                            <% } else if (error==='evaluation_exists' ) { %>
+                                                <%= lang==='ar' ? 'يوجد تقييم بالفعل لهذه الفترة'
+                                                    : 'Evaluation already exists for this period' %>
+                                                    <% } else if (error==='evaluation_create_failed' ) { %>
+                                                        <%= lang==='ar' ? 'فشل في إنشاء التقييم'
+                                                            : 'Failed to create evaluation' %>
+                                                            <% } %>
+                                                                <button type="button" class="btn-close"
+                                                                    data-bs-dismiss="alert"></button>
+                                </div>
+                                <% } %>
+
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <!-- قائمة التقييمات -->
+                                            <div class="luxury-card p-4">
+                                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                                    <h5 class="text-gold mb-0">
+                                                        <i class="fas fa-list me-2"></i>
+                                                        <%= lang==='ar' ? 'تقييمات الأداء' : 'Performance Evaluations'
+                                                            %>
+                                                    </h5>
+                                                    <button type="button" class="btn btn-luxury" data-bs-toggle="modal"
+                                                        data-bs-target="#newEvaluationModal">
+                                                        <i class="fas fa-plus-circle me-2"></i>
+                                                        <%= lang==='ar' ? 'بدء تقييم جديد' : 'Start New Evaluation' %>
+                                                    </button>
+                                                </div>
+
+                                                <!-- إحصائيات سريعة -->
+                                                <div class="row mb-4">
+                                                    <div class="col-md-3 col-sm-6 mb-3">
+                                                        <div class="bg-light rounded p-3 text-center">
+                                                            <h3 class="text-gold mb-1">
+                                                                <%= evaluations.length %>
+                                                            </h3>
+                                                            <small class="text-muted">
+                                                                <%= lang==='ar' ? 'إجمالي التقييمات'
+                                                                    : 'Total Evaluations' %>
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 col-sm-6 mb-3">
+                                                        <div class="bg-light rounded p-3 text-center">
+                                                            <% const completed=evaluations.filter(e=> e.status ===
+                                                                'completed').length;
+                                                                %>
+                                                                <h3 class="text-success mb-1">
+                                                                    <%= completed %>
+                                                                </h3>
+                                                                <small class="text-muted">
+                                                                    <%= lang==='ar' ? 'مكتملة' : 'Completed' %>
+                                                                </small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 col-sm-6 mb-3">
+                                                        <div class="bg-light rounded p-3 text-center">
+                                                            <% const inProgress=evaluations.filter(e=> e.status ===
+                                                                'in_progress').length;
+                                                                %>
+                                                                <h3 class="text-primary mb-1">
+                                                                    <%= inProgress %>
+                                                                </h3>
+                                                                <small class="text-muted">
+                                                                    <%= lang==='ar' ? 'قيد التنفيذ' : 'In Progress' %>
+                                                                </small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 col-sm-6 mb-3">
+                                                        <div class="bg-light rounded p-3 text-center">
+                                                            <% const approved=evaluations.filter(e=> e.status ===
+                                                                'approved').length;
+                                                                %>
+                                                                <h3 class="text-gold mb-1">
+                                                                    <%= approved %>
+                                                                </h3>
+                                                                <small class="text-muted">
+                                                                    <%= lang==='ar' ? 'معتمدة' : 'Approved' %>
+                                                                </small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <% if (evaluations.length> 0) { %>
+                                                    <div class="table-responsive">
+                                                        <table class="table table-hover">
+                                                            <thead class="table-light">
+                                                                <tr>
+                                                                    <th style="width: 25%">
+                                                                        <%= lang==='ar' ? 'الموظف' : 'Employee' %>
+                                                                    </th>
+                                                                    <th style="width: 15%">
+                                                                        <%= lang==='ar' ? 'فترة التقييم' : 'Period' %>
+                                                                    </th>
+                                                                    <th style="width: 15%">
+                                                                        <%= lang==='ar' ? 'المقيم' : 'Evaluator' %>
+                                                                    </th>
+                                                                    <th style="width: 15%">
+                                                                        <%= lang==='ar' ? 'الحالة' : 'Status' %>
+                                                                    </th>
+                                                                    <th style="width: 15%">
+                                                                        <%= lang==='ar' ? 'النتيجة' : 'Score' %>
+                                                                    </th>
+                                                                    <th style="width: 15%">
+                                                                        <%= lang==='ar' ? 'الإجراءات' : 'Actions' %>
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <% evaluations.forEach(evaluation=> { %>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <strong class="text-dark">
+                                                                                <%= evaluation.employee ? (lang==='ar' ?
+                                                                                    evaluation.employee.name.ar :
+                                                                                    evaluation.employee.name.en) : 'N/A'
+                                                                                    %>
+                                                                            </strong>
+                                                                            <% if (evaluation.position) { %>
+                                                                                <br><small class="text-muted">
+                                                                                    <%= evaluation.position %>
+                                                                                </small>
+                                                                                <% } %>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="badge bg-light text-dark">
+                                                                                <%= evaluation.evaluationPeriod %>
+                                                                            </span>
+                                                                            <br>
+                                                                            <small class="text-muted">
+                                                                                <%= evaluation.evaluationDate ? new
+                                                                                    Date(evaluation.evaluationDate).toLocaleDateString(lang==='ar'
+                                                                                    ? 'ar-SA' : 'en-US' ) : '' %>
+                                                                            </small>
+                                                                        </td>
+                                                                        <td>
+                                                                            <small>
+                                                                                <%= evaluation.evaluator ?
+                                                                                    evaluation.evaluator.name : 'N/A' %>
+                                                                            </small>
+                                                                        </td>
+                                                                        <td>
+                                                                            <% let statusClass='' ; let statusText='' ;
+                                                                                switch(evaluation.status) { case 'draft'
+                                                                                : statusClass='status-draft' ;
+                                                                                statusText=lang==='ar' ? 'مسودة'
+                                                                                : 'Draft' ; break; case 'in_progress' :
+                                                                                statusClass='status-in_progress' ;
+                                                                                statusText=lang==='ar' ? 'قيد التنفيذ'
+                                                                                : 'In Progress' ; break;
+                                                                                case 'completed' :
+                                                                                statusClass='status-completed' ;
+                                                                                statusText=lang==='ar' ? 'مكتمل'
+                                                                                : 'Completed' ; break; case 'approved' :
+                                                                                statusClass='status-approved' ;
+                                                                                statusText=lang==='ar' ? 'معتمد'
+                                                                                : 'Approved' ; break; case 'rejected' :
+                                                                                statusClass='status-rejected' ;
+                                                                                statusText=lang==='ar' ? 'مرفوض'
+                                                                                : 'Rejected' ; break; default:
+                                                                                statusClass='status-draft' ;
+                                                                                statusText=evaluation.status; } %>
+                                                                                <span
+                                                                                    class="status-badge <%= statusClass %>">
+                                                                                    <%= statusText %>
+                                                                                </span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <% if (evaluation.finalResults &&
+                                                                                evaluation.finalResults.overallPerformanceScore)
+                                                                                { %>
+                                                                                <div class="d-flex align-items-center">
+                                                                                    <strong class="text-gold me-2">
+                                                                                        <%= evaluation.finalResults.overallPerformanceScore.toFixed(1)
+                                                                                            %>
+                                                                                    </strong>
+                                                                                    <small
+                                                                                        class="text-muted">/10</small>
+                                                                                </div>
+                                                                                <div class="progress"
+                                                                                    style="height: 6px; width: 80px;">
+                                                                                    <div class="progress-bar bg-gold"
+                                                                                        style="width: <%= evaluation.finalResults.overallPerformanceScore * 10 %>%">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <% } else { %>
+                                                                                    <span class="text-muted">-</span>
+                                                                                    <% } %>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="btn-group btn-group-sm">
+                                                                                <a href="/admin/evaluation/evaluations/<%= evaluation._id %>?lang=<%= lang %>"
+                                                                                    class="btn btn-outline-primary"
+                                                                                    title="<%= lang === 'ar' ? 'تعديل' : 'Edit' %>">
+                                                                                    <i class="fas fa-edit"></i>
+                                                                                </a>
+                                                                                <form
+                                                                                    action="/admin/evaluation/evaluations/<%= evaluation._id %>?lang=<%= lang %>"
+                                                                                    method="POST" class="d-inline"
+                                                                                    onsubmit="return confirm('<%= lang === 'ar' ? 'هل أنت متأكد من الحذف؟' : 'Are you sure you want to delete?' %>')">
+                                                                                    <input type="hidden" name="_method"
+                                                                                        value="DELETE">
+                                                                                    <button type="submit"
+                                                                                        class="btn btn-outline-danger"
+                                                                                        title="<%= lang === 'ar' ? 'حذف' : 'Delete' %>">
+                                                                                        <i class="fas fa-trash"></i>
+                                                                                    </button>
+                                                                                </form>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <% }) %>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <% } else { %>
+                                                        <div class="text-center py-5">
+                                                            <i class="fas fa-clipboard-list fa-4x text-muted mb-3"></i>
+                                                            <h5 class="text-muted mb-3">
+                                                                <%= lang==='ar' ? 'لا توجد تقييمات حالياً'
+                                                                    : 'No evaluations available' %>
+                                                            </h5>
+                                                            <p class="text-muted mb-3">
+                                                                <%= lang==='ar'
+                                                                    ? 'ابدأ بإنشاء تقييم جديد من خلال الزر أعلاه'
+                                                                    : 'Start by creating a new evaluation using the button above'
+                                                                    %>
+                                                            </p>
+                                                            <a href="/admin/evaluation/criteria?lang=<%= lang %>"
+                                                                class="btn btn-outline-luxury">
+                                                                <i class="fas fa-cog me-2"></i>
+                                                                <%= lang==='ar' ? 'إدارة معايير التقييم'
+                                                                    : 'Manage Evaluation Criteria' %>
+                                                            </a>
+                                                        </div>
+                                                        <% } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                </div>
+        </div>
+
+        <!-- Modal بدء تقييم جديد -->
+        <div class="modal fade" id="newEvaluationModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-gold">
+                        <h5 class="modal-title text-dark">
                             <i class="fas fa-plus-circle me-2"></i>
-                            <%= lang === 'ar' ? 'بدء تقييم جديد' : 'Start New Evaluation' %>
+                            <%= lang==='ar' ? 'بدء تقييم جديد' : 'Start New Evaluation' %>
                         </h5>
-                        
-                        <form action="/admin/evaluation/evaluations?lang=<%= lang %>" method="POST">
-                            <div class="mb-3">
-                                <label class="form-label"><%= lang === 'ar' ? 'الموظف' : 'Employee' %></label>
-                                <select class="form-select" name="employeeId" required>
-                                    <option value=""><%= lang === 'ar' ? 'اختر الموظف' : 'Select Employee' %></option>
-                                    <% employees.forEach(employee => { %>
-                                    <option value="<%= employee._id %>">
-                                        <%= lang === 'ar' ? employee.name.ar : employee.name.en %> - 
-                                        <%= employee.department ? (lang === 'ar' ? employee.department.name.ar : employee.department.name.en) : 'No Department' %>
-                                    </option>
-                                    <% }) %>
-                                </select>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label"><%= lang === 'ar' ? 'فترة التقييم' : 'Evaluation Period' %></label>
-                                <select class="form-select" name="evaluationPeriod" required>
-                                    <option value=""><%= lang === 'ar' ? 'اختر الفترة' : 'Select Period' %></option>
-                                    <option value="2024-Q1">2024 <%= lang === 'ar' ? 'الربع الأول' : 'Q1' %></option>
-                                    <option value="2024-Q2">2024 <%= lang === 'ar' ? 'الربع الثاني' : 'Q2' %></option>
-                                    <option value="2024-Q3">2024 <%= lang === 'ar' ? 'الربع الثالث' : 'Q3' %></option>
-                                    <option value="2024-Q4">2024 <%= lang === 'ar' ? 'الربع الرابع' : 'Q4' %></option>
-                                    <option value="2024-Annual">2024 <%= lang === 'ar' ? 'سنوي' : 'Annual' %></option>
-                                    <option value="2025-Q1">2025 <%= lang === 'ar' ? 'الربع الأول' : 'Q1' %></option>
-                                    <option value="2025-Q2">2025 <%= lang === 'ar' ? 'الربع الثاني' : 'Q2' %></option>
-                                    <option value="2025-Q3">2025 <%= lang === 'ar' ? 'الربع الثالث' : 'Q3' %></option>
-                                    <option value="2025-Q4">2025 <%= lang === 'ar' ? 'الربع الرابع' : 'Q4' %></option>
-                                    <option value="2025-Annual">2025 <%= lang === 'ar' ? 'سنوي' : 'Annual' %></option>
-                                </select>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label"><%= lang === 'ar' ? 'المنصب' : 'Position' %></label>
-                                <input type="text" class="form-control" name="position" 
-                                    placeholder="<%= lang === 'ar' ? 'سيتم تعبئته تلقائياً' : 'Will be auto-filled' %>">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label"><%= lang === 'ar' ? 'الإدارة' : 'Department' %></label>
-                                <select class="form-select" name="departmentId">
-                                    <option value=""><%= lang === 'ar' ? 'اختر الإدارة' : 'Select Department' %></option>
-                                    <% departments.forEach(dept => { %>
-                                    <option value="<%= dept._id %>">
-                                        <%= lang === 'ar' ? dept.name.ar : dept.name.en %>
-                                    </option>
-                                    <% }) %>
-                                </select>
-                            </div>
-                            
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-luxury w-100">
-                                    <i class="fas fa-play me-2"></i>
-                                    <%= lang === 'ar' ? 'بدء التقييم' : 'Start Evaluation' %>
-                                </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="newEvaluationForm" action="/admin/evaluation/evaluations?lang=<%= lang %>"
+                            method="POST">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        <%= lang==='ar' ? 'الموظف' : 'Employee' %> <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" name="employeeId" required>
+                                        <option value="">
+                                            <%= lang==='ar' ? 'اختر الموظف' : 'Select Employee' %>
+                                        </option>
+                                        <% employees.forEach(employee=> { %>
+                                            <option value="<%= employee._id %>">
+                                                <%= lang==='ar' ? employee.name.ar : employee.name.en %> -
+                                                    <%= employee.department ? (lang==='ar' ? employee.department.name.ar
+                                                        : employee.department.name.en) : 'No Department' %>
+                                            </option>
+                                            <% }) %>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        <%= lang==='ar' ? 'فترة التقييم' : 'Evaluation Period' %> <span
+                                                class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" name="evaluationPeriod" required>
+                                        <option value="">
+                                            <%= lang==='ar' ? 'اختر الفترة' : 'Select Period' %>
+                                        </option>
+                                        <optgroup label="2024">
+                                            <option value="2024-Q1">2024 <%= lang==='ar' ? 'الربع الأول' : 'Q1' %>
+                                            </option>
+                                            <option value="2024-Q2">2024 <%= lang==='ar' ? 'الربع الثاني' : 'Q2' %>
+                                            </option>
+                                            <option value="2024-Q3">2024 <%= lang==='ar' ? 'الربع الثالث' : 'Q3' %>
+                                            </option>
+                                            <option value="2024-Q4">2024 <%= lang==='ar' ? 'الربع الرابع' : 'Q4' %>
+                                            </option>
+                                            <option value="2024-Annual">2024 <%= lang==='ar' ? 'سنوي' : 'Annual' %>
+                                            </option>
+                                        </optgroup>
+                                        <optgroup label="2025">
+                                            <option value="2025-Q1">2025 <%= lang==='ar' ? 'الربع الأول' : 'Q1' %>
+                                            </option>
+                                            <option value="2025-Q2">2025 <%= lang==='ar' ? 'الربع الثاني' : 'Q2' %>
+                                            </option>
+                                            <option value="2025-Q3">2025 <%= lang==='ar' ? 'الربع الثالث' : 'Q3' %>
+                                            </option>
+                                            <option value="2025-Q4">2025 <%= lang==='ar' ? 'الربع الرابع' : 'Q4' %>
+                                            </option>
+                                            <option value="2025-Annual">2025 <%= lang==='ar' ? 'سنوي' : 'Annual' %>
+                                            </option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        <%= lang==='ar' ? 'المنصب' : 'Position' %>
+                                    </label>
+                                    <input type="text" class="form-control" name="position"
+                                        placeholder="<%= lang === 'ar' ? 'سيتم تعبئته تلقائياً' : 'Will be auto-filled' %>">
+                                    <small class="text-muted">
+                                        <%= lang==='ar' ? 'اختياري - سيتم ملؤه تلقائياً من بيانات الموظف'
+                                            : 'Optional - Will be auto-filled from employee data' %>
+                                    </small>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        <%= lang==='ar' ? 'الإدارة' : 'Department' %>
+                                    </label>
+                                    <select class="form-select" name="departmentId">
+                                        <option value="">
+                                            <%= lang==='ar' ? 'اختر الإدارة' : 'Select Department' %>
+                                        </option>
+                                        <% departments.forEach(dept=> { %>
+                                            <option value="<%= dept._id %>">
+                                                <%= lang==='ar' ? dept.name.ar : dept.name.en %>
+                                            </option>
+                                            <% }) %>
+                                    </select>
+                                    <small class="text-muted">
+                                        <%= lang==='ar' ? 'اختياري - سيتم ملؤه تلقائياً من بيانات الموظف'
+                                            : 'Optional - Will be auto-filled from employee data' %>
+                                    </small>
+                                </div>
                             </div>
                         </form>
                     </div>
-                    
-                    <!-- إحصائيات سريعة -->
-                    <div class="luxury-card p-4">
-                        <h5 class="text-gold mb-3">
-                            <i class="fas fa-chart-bar me-2"></i>
-                            <%= lang === 'ar' ? 'إحصائيات التقييم' : 'Evaluation Statistics' %>
-                        </h5>
-                        
-                        <div class="row text-center">
-                            <div class="col-6 mb-3">
-                                <div class="bg-light rounded p-3">
-                                    <h3 class="text-gold mb-1"><%= evaluations.length %></h3>
-                                    <small class="text-muted"><%= lang === 'ar' ? 'إجمالي التقييمات' : 'Total Evaluations' %></small>
-                                </div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <div class="bg-light rounded p-3">
-                                    <%
-                                    const completed = evaluations.filter(e => e.status === 'completed').length;
-                                    %>
-                                    <h3 class="text-gold mb-1"><%= completed %></h3>
-                                    <small class="text-muted"><%= lang === 'ar' ? 'مكتملة' : 'Completed' %></small>
-                                </div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <div class="bg-light rounded p-3">
-                                    <%
-                                    const inProgress = evaluations.filter(e => e.status === 'in_progress').length;
-                                    %>
-                                    <h3 class="text-gold mb-1"><%= inProgress %></h3>
-                                    <small class="text-muted"><%= lang === 'ar' ? 'قيد التنفيذ' : 'In Progress' %></small>
-                                </div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <div class="bg-light rounded p-3">
-                                    <%
-                                    const approved = evaluations.filter(e => e.status === 'approved').length;
-                                    %>
-                                    <h3 class="text-gold mb-1"><%= approved %></h3>
-                                    <small class="text-muted"><%= lang === 'ar' ? 'معتمدة' : 'Approved' %></small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-lg-8">
-                    <!-- قائمة التقييمات -->
-                    <div class="luxury-card p-4">
-                        <h5 class="text-gold mb-3">
-                            <i class="fas fa-list me-2"></i>
-                            <%= lang === 'ar' ? 'التقييمات الحالية' : 'Current Evaluations' %>
-                        </h5>
-                        
-                        <% if (evaluations.length > 0) { %>
-                            <div class="table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th><%= lang === 'ar' ? 'الموظف' : 'Employee' %></th>
-                                            <th><%= lang === 'ar' ? 'فترة التقييم' : 'Evaluation Period' %></th>
-                                            <th><%= lang === 'ar' ? 'المقيم' : 'Evaluator' %></th>
-                                            <th><%= lang === 'ar' ? 'الحالة' : 'Status' %></th>
-                                            <th><%= lang === 'ar' ? 'النتيجة' : 'Score' %></th>
-                                            <th><%= lang === 'ar' ? 'الإجراءات' : 'Actions' %></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% evaluations.forEach(evaluation => { %>
-                                        <tr>
-                                            <td>
-                                                <strong>
-                                                    <%= evaluation.employee ? (lang === 'ar' ? evaluation.employee.name.ar : evaluation.employee.name.en) : 'N/A' %>
-                                                </strong>
-                                                <% if (evaluation.position) { %>
-                                                <br><small class="text-muted"><%= evaluation.position %></small>
-                                                <% } %>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-light text-dark">
-                                                    <%= evaluation.evaluationPeriod %>
-                                                </span>
-                                                <br>
-                                                <small class="text-muted">
-                                                    <%= evaluation.evaluationDate ? new Date(evaluation.evaluationDate).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US') : '' %>
-                                                </small>
-                                            </td>
-                                            <td>
-                                                <small>
-                                                    <%= evaluation.evaluator ? evaluation.evaluator.name : 'N/A' %>
-                                                </small>
-                                            </td>
-                                            <td>
-                                                <%
-                                                let statusClass = '';
-                                                let statusText = '';
-                                                switch(evaluation.status) {
-                                                    case 'draft':
-                                                        statusClass = 'status-draft';
-                                                        statusText = lang === 'ar' ? 'مسودة' : 'Draft';
-                                                        break;
-                                                    case 'in_progress':
-                                                        statusClass = 'status-in_progress';
-                                                        statusText = lang === 'ar' ? 'قيد التنفيذ' : 'In Progress';
-                                                        break;
-                                                    case 'completed':
-                                                        statusClass = 'status-completed';
-                                                        statusText = lang === 'ar' ? 'مكتمل' : 'Completed';
-                                                        break;
-                                                    case 'approved':
-                                                        statusClass = 'status-approved';
-                                                        statusText = lang === 'ar' ? 'معتمد' : 'Approved';
-                                                        break;
-                                                    case 'rejected':
-                                                        statusClass = 'status-rejected';
-                                                        statusText = lang === 'ar' ? 'مرفوض' : 'Rejected';
-                                                        break;
-                                                    default:
-                                                        statusClass = 'status-draft';
-                                                        statusText = evaluation.status;
-                                                }
-                                                %>
-                                                <span class="status-badge <%= statusClass %>">
-                                                    <%= statusText %>
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <% if (evaluation.finalResults && evaluation.finalResults.overallPerformanceScore) { %>
-                                                <div class="d-flex align-items-center">
-                                                    <strong class="text-gold me-2">
-                                                        <%= evaluation.finalResults.overallPerformanceScore.toFixed(1) %>
-                                                    </strong>
-                                                    <small class="text-muted">/10</small>
-                                                </div>
-                                                <div class="progress" style="height: 6px; width: 80px;">
-                                                    <div class="progress-bar bg-gold" 
-                                                         style="width: <%= evaluation.finalResults.overallPerformanceScore * 10 %>%">
-                                                    </div>
-                                                </div>
-                                                <% } else { %>
-                                                <span class="text-muted">-</span>
-                                                <% } %>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="/admin/evaluation/evaluations/<%= evaluation._id %>?lang=<%= lang %>" 
-                                                       class="btn btn-outline-primary">
-                                                        <i class="fas fa-edit"></i>
-                                                        <%= lang === 'ar' ? 'تعديل' : 'Edit' %>
-                                                    </a>
-                                                    <form action="/admin/evaluation/evaluations/<%= evaluation._id %>?lang=<%= lang %>" 
-                                                          method="POST" class="d-inline"
-                                                          onsubmit="return confirm('<%= lang === 'ar' ? 'هل أنت متأكد من الحذف؟' : 'Are you sure you want to delete?' %>')">
-                                                        <input type="hidden" name="_method" value="DELETE">
-                                                        <button type="submit" class="btn btn-outline-danger">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <% }) %>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <% } else { %>
-                            <div class="text-center py-4">
-                                <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">
-                                    <%= lang === 'ar' ? 'لا توجد تقييمات حالياً' : 'No evaluations available' %>
-                                </p>
-                                <a href="/admin/evaluation/criteria?lang=<%= lang %>" class="btn btn-luxury">
-                                    <i class="fas fa-plus me-2"></i>
-                                    <%= lang === 'ar' ? 'ابدأ بتعريف المعايير أولاً' : 'Define Criteria First' %>
-                                </a>
-                            </div>
-                        <% } %>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>
+                            <%= lang==='ar' ? 'إلغاء' : 'Cancel' %>
+                        </button>
+                        <button type="submit" form="newEvaluationForm" class="btn btn-luxury">
+                            <i class="fas fa-play me-2"></i>
+                            <%= lang==='ar' ? 'بدء التقييم' : 'Start Evaluation' %>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <%- include('../partials/scripts') %>
+        <%- include('../partials/scripts') %>
 </body>
+
 </html>

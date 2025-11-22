@@ -1,33 +1,42 @@
 <!DOCTYPE html>
 <html lang="<%= lang %>" dir="<%= dir %>">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= t.profile %> - <%= t.hotelName %></title>
+    <title>
+        <%= t.profile %> - <%= t.hotelName %>
+    </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     <%- include('../partials/styles') %>
 </head>
+
 <body class="dashboard-bg">
     <!-- زر القائمة للموبايل -->
     <button class="mobile-menu-btn" id="mobileMenuBtn">
         <i class="fas fa-bars"></i>
     </button>
-    
+
     <!-- Overlay للجوال -->
     <div class="overlay" id="overlay"></div>
-    
+
     <!-- الشريط الجانبي -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo">
-                <img src="/images/logo.png" alt="<%= t.hotelName %>" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iNDAiIGZpbGw9IiNEMEFGMzciLz4KPC9zdmc+Cg=='">
+                <img src="/images/logo.png" alt="<%= t.hotelName %>"
+                    onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iNDAiIGZpbGw9IiNEMEFGMzciLz4KPC9zdmc+Cg=='">
             </div>
-            <h5 class="text-gold mb-1"><%= t.hotelName %></h5>
-            <small class="text-light"><%= t.userDashboard %></small>
+            <h5 class="text-gold mb-1">
+                <%= t.hotelName %>
+            </h5>
+            <small class="text-light">
+                <%= t.userDashboard %>
+            </small>
         </div>
-        
+
         <nav class="nav flex-column">
             <a href="/user/dashboard?lang=<%= lang %>" class="nav-link">
                 <span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span>
@@ -39,7 +48,7 @@
             </a>
             <!-- باقي الروابط -->
         </nav>
-        
+
         <!-- قسم تسجيل الخروج -->
         <div class="mt-auto p-3 border-top">
             <form action="/logout" method="POST" class="d-grid">
@@ -51,7 +60,7 @@
             </form>
         </div>
     </div>
-    
+
     <!-- المحتوى الرئيسي -->
     <div class="dashboard-content">
         <!-- الشريط العلوي -->
@@ -63,18 +72,18 @@
                         <%= t.profile %>
                     </h4>
                 </div>
-                
+
                 <div class="navbar-right">
                     <div class="language-menu">
                         <a href="?lang=<%= lang === 'ar' ? 'en' : 'ar' %>" class="btn btn-lang">
                             <i class="fas fa-globe me-2"></i>
-                            <%= lang === 'ar' ? 'English' : 'العربية' %>
+                            <%= lang==='ar' ? 'English' : 'العربية' %>
                         </a>
                     </div>
                 </div>
             </div>
         </nav>
-        
+
         <!-- محتوى الملف الشخصي -->
         <div class="content-wrapper">
             <div class="row">
@@ -84,48 +93,153 @@
                             <div class="profile-avatar">
                                 <i class="fas fa-user"></i>
                             </div>
-                            <h3 class="text-dark mb-2"><%= user.name %></h3>
-                            <p class="text-gold mb-1"><%= user.role %></p>
-                            <p class="text-muted"><%= user.department %></p>
+                            <h3 class="text-dark mb-2">
+                                <%= user.name %>
+                            </h3>
+                            <p class="text-gold mb-1">
+                                <%= user.role %>
+                            </p>
+                            <p class="text-muted">
+                                <%= user.department %>
+                            </p>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-lg-8">
                     <div class="luxury-card">
                         <div class="p-3 border-bottom">
                             <h5 class="mb-0 text-gold">
                                 <i class="fas fa-info-circle me-2"></i>
-                                <%= lang === 'ar' ? 'المعلومات الشخصية' : 'Personal Information' %>
+                                <%= lang==='ar' ? 'المعلومات الشخصية' : 'Personal Information' %>
                             </h5>
                         </div>
                         <div class="p-4">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <div class="info-card">
-                                        <div class="info-label"><%= t.userName %></div>
-                                        <div class="info-value"><%= user.name %></div>
+                                        <div class="info-label">
+                                            <%= t.userName %>
+                                        </div>
+                                        <div class="info-value">
+                                            <%= user.name %>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <div class="info-card">
-                                        <div class="info-label"><%= t.userRole %></div>
-                                        <div class="info-value"><%= user.role %></div>
+                                        <div class="info-label">
+                                            <%= t.userRole %>
+                                        </div>
+                                        <div class="info-value">
+                                            <%= user.role %>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <div class="info-card">
-                                        <div class="info-label"><%= t.department %></div>
-                                        <div class="info-value"><%= user.department %></div>
+                                        <div class="info-label">
+                                            <%= t.department %>
+                                        </div>
+                                        <div class="info-value">
+                                            <%= user.department %>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <div class="info-card">
-                                        <div class="info-label"><%= lang === 'ar' ? 'تاريخ الانضمام' : 'Join Date' %></div>
-                                        <div class="info-value"><%= new Date().toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US') %></div>
+                                        <div class="info-label">
+                                            <%= lang==='ar' ? 'تاريخ الانضمام' : 'Join Date' %>
+                                        </div>
+                                        <div class="info-value">
+                                            <%= new Date().toLocaleDateString(lang==='ar' ? 'ar-SA' : 'en-US' ) %>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم تغيير كلمة المرور -->
+            <div class="row mt-4">
+                <div class="col-lg-8 offset-lg-2">
+                    <div class="luxury-card">
+                        <div class="p-3 border-bottom">
+                            <h5 class="mb-0 text-gold">
+                                <i class="fas fa-lock me-2"></i>
+                                <%= lang==='ar' ? 'تغيير كلمة المرور' : 'Change Password' %>
+                            </h5>
+                        </div>
+                        <div class="p-4">
+                            <!-- رسائل النجاح/الخطأ -->
+                            <% if (success) { %>
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <%= lang==='ar' ? 'تم تغيير كلمة المرور بنجاح!' : 'Password changed successfully!'
+                                        %>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                                <% } %>
+
+                                    <% if (error) { %>
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <% if (error==='wrong_password' ) { %>
+                                                <%= lang==='ar' ? 'كلمة المرور الحالية غير صحيحة'
+                                                    : 'Current password is incorrect' %>
+                                                    <% } else if (error==='password_mismatch' ) { %>
+                                                        <%= lang==='ar' ? 'كلمة المرور الجديدة غير متطابقة'
+                                                            : 'New passwords do not match' %>
+                                                            <% } else { %>
+                                                                <%= lang==='ar' ? 'فشل في تغيير كلمة المرور'
+                                                                    : 'Failed to change password' %>
+                                                                    <% } %>
+                                                                        <button type="button" class="btn-close"
+                                                                            data-bs-dismiss="alert"></button>
+                                        </div>
+                                        <% } %>
+
+                                            <form action="/user/profile/change-password?lang=<%= lang %>" method="POST">
+                                                <div class="mb-3">
+                                                    <label class="form-label">
+                                                        <%= lang==='ar' ? 'كلمة المرور الحالية' : 'Current Password' %>
+                                                            <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="password" class="form-control" name="currentPassword"
+                                                        required
+                                                        placeholder="<%= lang === 'ar' ? 'أدخل كلمة المرور الحالية' : 'Enter current password' %>">
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label">
+                                                        <%= lang==='ar' ? 'كلمة المرور الجديدة' : 'New Password' %>
+                                                            <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="password" class="form-control" name="newPassword"
+                                                        required minlength="6"
+                                                        placeholder="<%= lang === 'ar' ? 'أدخل كلمة المرور الجديدة (6 أحرف على الأقل)' : 'Enter new password (min 6 characters)' %>">
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label">
+                                                        <%= lang==='ar' ? 'تأكيد كلمة المرور الجديدة'
+                                                            : 'Confirm New Password' %>
+                                                            <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="password" class="form-control" name="confirmPassword"
+                                                        required minlength="6"
+                                                        placeholder="<%= lang === 'ar' ? 'أعد إدخال كلمة المرور الجديدة' : 'Re-enter new password' %>">
+                                                </div>
+
+                                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                                    <button type="submit" class="btn btn-luxury">
+                                                        <i class="fas fa-save me-2"></i>
+                                                        <%= lang==='ar' ? 'حفظ التغييرات' : 'Save Changes' %>
+                                                    </button>
+                                                </div>
+                                            </form>
                         </div>
                     </div>
                 </div>
@@ -139,14 +253,15 @@
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
-        
+
         function toggleSidebar() {
             sidebar.classList.toggle('show');
             overlay.classList.toggle('show');
         }
-        
+
         mobileMenuBtn.addEventListener('click', toggleSidebar);
         overlay.addEventListener('click', toggleSidebar);
     </script>
 </body>
+
 </html>

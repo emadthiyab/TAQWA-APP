@@ -161,8 +161,8 @@ const translations = {
         kpiProgress: "التقدم",
 
         // التقارير
-        reports: "التقارير",
-        report: "تقرير",
+        reports: "البلاغات",
+        report: "بلاغ",
         notifications: "البلاغات",
         reportsComplaints: "البلاغات والشكاوى",
 
@@ -283,8 +283,8 @@ const translations = {
         kpiProgress: "Progress",
 
         // Reports
-        reports: "Reports",
-        report: "Report",
+        reports: "Complaints",
+        report: "Complaint",
         notifications: "Notifications",
         reportsComplaints: "Reports & Complaints",
 
@@ -1979,16 +1979,247 @@ app.get('/user/projects', requireAuth, async (req, res) => {
 // البلاغات الشخصية
 app.get('/user/reports', requireAuth, async (req, res) => {
     try {
-        const userReports = await Report.find({ createdBy: req.session.user.id }).sort({ createdAt: -1 });
+        const userReports = await Report.find({ reportedBy: req.session.user.id }).sort({ createdAt: -1 });
+        const departments = await Department.find({}).select('name');
+
+        // حساب الإحصائيات
+        const stats = {
+            total: userReports.length,
+            pending: userReports.filter(r => r.status === 'معلق').length,
+            resolved: userReports.filter(r => r.status === 'مكتمل').length,
+            inProgress: userReports.filter(r => r.status === 'جاري التنفيذ').length
+        };
+
         res.render('user/reports', {
             userReports,
-            title: res.locals.t.reportsTracking
+            departments,
+            stats,
+            title: res.locals.t.reportsTracking,
+            success: req.query.success || null,
+            error: req.query.error || null
         });
     } catch (error) {
         console.error('Error loading user reports:', error);
         res.status(500).render('error', {
             error: res.locals.lang === 'ar' ? 'خطأ في تحميل البلاغات' : 'Error loading reports'
         });
+    }
+});
+
+// الملف الشخصي
+app.get('/user/profile', requireAuth, async (req, res) => {
+    try {
+        const userDetails = await User.findById(req.session.user.id).populate('department');
+
+        res.render('user/profile', {
+            title: res.locals.t.profile,
+            user: {
+                name: userDetails.name,
+                role: userDetails.role === 'admin' ?
+                    (res.locals.lang === 'ar' ? 'مدير' : 'Admin') :
+                    (res.locals.lang === 'ar' ? 'موظف' : 'Employee'),
+                department: userDetails.department ?
+                    (res.locals.lang === 'ar' ? userDetails.department.name.ar : userDetails.department.name.en) :
+                    (res.locals.lang === 'ar' ? 'غير محدد' : 'Not specified')
+            },
+            success: req.query.success || null,
+            error: req.query.error || null
+        });
+    } catch (error) {
+        console.error('Error loading user profile:', error);
+        res.status(500).render('error', {
+            error: res.locals.lang === 'ar' ? 'خطأ في تحميل الملف الشخصي' : 'Error loading profile'
+        });
+    }
+});
+
+// تغيير كلمة المرور
+app.post('/user/profile/change-password', requireAuth, async (req, res) => {
+    try {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+        const lang = req.query.lang || 'ar';
+
+        // التحقق من تطابق كلمة المرور الجديدة
+        if (newPassword !== confirmPassword) {
+            return res.redirect(`/user/profile?lang=${lang}&error=password_mismatch`);
+        }
+
+        // جلب بيانات المستخدم
+        const user = await User.findById(req.session.user.id);
+
+        // التحقق من كلمة المرور الحالية
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.redirect(`/user/profile?lang=${lang}&error=wrong_password`);
+        }
+
+        // تشفير كلمة المرور الجديدة
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // تحديث كلمة المرور
+        await User.findByIdAndUpdate(req.session.user.id, {
+            password: hashedPassword
+        });
+
+        res.redirect(`/user/profile?lang=${lang}&success=1`);
+    } catch (error) {
+        console.error('Error changing password:', error);
+        const lang = req.query.lang || 'ar';
+        res.redirect(`/user/profile?lang=${lang}&error=1`);
+    }
+});
+
+// صفحة إدخال البيانات
+app.get('/user/data', requireAuth, async (req, res) => {
+    try {
+        // جلب مؤشرات الأداء الخاصة بالمستخدم
+        const userKPIs = await KPI.find({ assignedTo: req.session.user.id })
+            .sort({ createdAt: -1 })
+            .limit(10);
+
+        // جلب المشاريع الخاصة بالمستخدم
+        const userProjects = await Project.find({ assignedTo: req.session.user.id })
+            .populate('department')
+            .sort({ createdAt: -1 });
+
+        res.render('user/data', {
+            title: res.locals.t.enterData,
+            userKPIs,
+            userProjects
+        });
+    } catch (error) {
+        console.error('Error loading data entry page:', error);
+        res.status(500).render('error', {
+            error: res.locals.lang === 'ar' ? 'خطأ في تحميل الصفحة' : 'Error loading page'
+        });
+    }
+});
+
+
+
+// تحديث مؤشر الأداء
+app.post('/user/data/kpi', requireAuth, async (req, res) => {
+    try {
+        const { kpiId, value, notes } = req.body;
+        const lang = req.query.lang || 'ar';
+
+        const kpi = await KPI.findById(kpiId);
+        if (!kpi) {
+            return res.status(404).render('error', {
+                error: lang === 'ar' ? 'مؤشر الأداء غير موجود' : 'KPI not found'
+            });
+        }
+
+        // تحديث القيمة الحالية
+        kpi.currentValue = parseFloat(value);
+
+        // إضافة ملاحظة إذا وجدت (يمكن تطوير هذا لتخزين سجل تاريخي)
+        if (notes) {
+            kpi.justification = notes; // أو حقل آخر للملاحظات
+        }
+
+        // تحديث الحالة بناءً على الهدف (مثال بسيط)
+        if (kpi.target > 0) {
+            kpi.progress = (kpi.currentValue / kpi.target) * 100;
+            if (kpi.progress >= 100) {
+                kpi.status = 'مكتمل';
+            } else if (kpi.progress > 0) {
+                kpi.status = 'في التقدم';
+            }
+        }
+
+        await kpi.save();
+
+        res.redirect(`/user/data?lang=${lang}&success=kpi_updated`);
+    } catch (error) {
+        console.error('Error updating KPI:', error);
+        const lang = req.query.lang || 'ar';
+        res.redirect(`/user/data?lang=${lang}&error=update_failed`);
+    }
+});
+
+// تحديث تقدم المشروع
+app.post('/user/data/project', requireAuth, async (req, res) => {
+    try {
+        const { projectId, progress, status, notes } = req.body;
+        const lang = req.query.lang || 'ar';
+
+        const project = await Project.findById(projectId);
+        if (!project) {
+            return res.status(404).render('error', {
+                error: lang === 'ar' ? 'المشروع غير موجود' : 'Project not found'
+            });
+        }
+
+        project.progress = parseInt(progress);
+        project.status = status;
+
+        // يمكن إضافة الملاحظات إلى سجل المشروع إذا كان موجوداً
+        if (notes) {
+            // project.notes = notes; // افتراض وجود حقل للملاحظات
+        }
+
+        await project.save();
+
+        res.redirect(`/user/data?lang=${lang}&success=project_updated`);
+    } catch (error) {
+        console.error('Error updating Project:', error);
+        const lang = req.query.lang || 'ar';
+        res.redirect(`/user/data?lang=${lang}&error=update_failed`);
+    }
+});
+
+// إنشاء بلاغ جديد
+app.post('/user/reports', requireAuth, async (req, res) => {
+    try {
+        const { type, department, title, description, priority } = req.body;
+        const lang = req.query.lang || 'ar';
+
+        // التحقق من البيانات المطلوبة
+        if (!type || !department || !title || !description) {
+            return res.redirect(`/user/reports?lang=${lang}&error=missing_fields`);
+        }
+
+        // تحويل القيم الإنجليزية إلى العربية للـ enum
+        const typeMap = {
+            'complaint': 'شكوى',
+            'suggestion': 'مقترح',
+            'report': 'احتياجات'
+        };
+
+        const typeEnMap = {
+            'complaint': 'Complaint',
+            'suggestion': 'Suggestion',
+            'report': 'Needs'
+        };
+
+        const priorityMap = {
+            'low': 'منخفض',
+            'medium': 'متوسط',
+            'high': 'عالي'
+        };
+
+        // إنشاء البلاغ الجديد
+        const newReport = new Report({
+            title: title,
+            titleEn: title,
+            type: typeMap[type] || 'احتياجات',
+            typeEn: typeEnMap[type] || 'Needs',
+            description: description,
+            department: department,
+            priority: priorityMap[priority] || 'متوسط',
+            status: 'جاري التنفيذ',
+            statusEn: 'In Progress',
+            reportedBy: req.session.user.id
+        });
+
+        await newReport.save();
+
+        res.redirect(`/user/reports?lang=${lang}&success=report_created`);
+    } catch (error) {
+        console.error('Error creating report:', error);
+        const lang = req.query.lang || 'ar';
+        res.redirect(`/user/reports?lang=${lang}&error=create_failed`);
     }
 });
 
@@ -2056,7 +2287,9 @@ app.get('/admin/settings', requireAdmin, async (req, res) => {
         res.render('admin/settings', {
             title: res.locals.t.settings,
             user: req.session.user,
-            settings: settingsData
+            settings: settingsData,
+            success: req.query.success || null,
+            error: req.query.error || null
         });
     } catch (error) {
         console.error('Error loading settings:', error);
