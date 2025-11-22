@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+    <%- include('../partials/head') %>
+</head>
+<body class="dashboard-bg">
+    <%- include('../partials/sidebar') %>
+    
+    <div class="main-content">
+        <%- include('../partials/navbar') %>
+        
+        <div class="container-fluid py-4">
+            <!-- رسائل النجاح/الخطأ -->
+            <% if (success) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <% if (success === 'department_created') { %>
+                    <%= lang === 'ar' ? 'تم إضافة الإدارة بنجاح!' : 'Department added successfully!' %>
+                <% } else if (success === 'department_updated') { %>
+                    <%= lang === 'ar' ? 'تم تحديث الإدارة بنجاح!' : 'Department updated successfully!' %>
+                <% } else if (success === 'department_deleted') { %>
+                    <%= lang === 'ar' ? 'تم حذف الإدارة بنجاح!' : 'Department deleted successfully!' %>
+                <% } %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+            
+            <% if (error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <% if (error === 'department_create_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في إضافة الإدارة' : 'Failed to add department' %>
+                <% } else if (error === 'department_update_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في تحديث الإدارة' : 'Failed to update department' %>
+                <% } else if (error === 'department_delete_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في حذف الإدارة' : 'Failed to delete department' %>
+                <% } %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="text-dark mb-0">
+                    <i class="fas fa-sitemap text-gold me-2"></i>
+                    <%= title %>
+                </h4>
+                <button class="btn btn-luxury" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+                    <i class="fas fa-plus me-2"></i>
+                    <%= lang === 'ar' ? 'إضافة إدارة' : 'Add Department' %>
+                </button>
+            </div>
+
+            <!-- جدول الإدارات -->
+            <div class="luxury-card">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th><%= lang === 'ar' ? 'اسم الإدارة' : 'Department Name' %></th>
+                                <th><%= lang === 'ar' ? 'المدير' : 'Manager' %></th>
+                                <th><%= lang === 'ar' ? 'البريد الإلكتروني' : 'Email' %></th>
+                                <th><%= lang === 'ar' ? 'الهاتف' : 'Phone' %></th>
+                                <th><%= lang === 'ar' ? 'الميزانية' : 'Budget' %></th>
+                                <th><%= lang === 'ar' ? 'الحالة' : 'Status' %></th>
+                                <th><%= lang === 'ar' ? 'الإجراءات' : 'Actions' %></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (departments && departments.length > 0) { %>
+                                <% departments.forEach(department => { %>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong><%= department.name.ar %></strong>
+                                            <br>
+                                            <small class="text-muted"><%= department.name.en %></small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-dark"><%= department.manager || '-' %></span>
+                                    </td>
+                                    <td>
+                                        <span class="text-dark"><%= department.email || '-' %></span>
+                                    </td>
+                                    <td>
+                                        <span class="text-dark"><%= department.phone || '-' %></span>
+                                    </td>
+                                    <td>
+                                        <strong><%= department.budget?.toLocaleString() || 0 %> <%= lang === 'ar' ? 'موظف' : 'Employees' %></strong>
+                                    </td>
+                                    <td>
+                                        <% if (department.isActive) { %>
+                                            <span class="status-badge status-active">
+                                                <i class="fas fa-check-circle me-1"></i>
+                                                <%= t.active %>
+                                            </span>
+                                        <% } else { %>
+                                            <span class="status-badge status-inactive">
+                                                <i class="fas fa-times-circle me-1"></i>
+                                                <%= t.inactive %>
+                                            </span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-outline-luxury" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editDepartmentModal"
+                                                    data-id="<%= department._id %>"
+                                                    data-name-ar="<%= department.name.ar %>"
+                                                    data-name-en="<%= department.name.en %>"
+                                                    data-description="<%= department.description || '' %>"
+                                                    data-manager="<%= department.manager || '' %>"
+                                                    data-email="<%= department.email || '' %>"
+                                                    data-phone="<%= department.phone || '' %>"
+                                                    data-extension="<%= department.extension || '' %>"
+                                                    data-budget="<%= department.budget %>"
+                                                    data-isactive="<%= department.isActive %>">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <form action="/admin/departments/<%= department._id %>?_method=DELETE&lang=<%= lang %>" method="POST" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                        onclick="return confirm('<%= lang === 'ar' ? 'هل أنت متأكد من حذف هذه الإدارة؟' : 'Are you sure you want to delete this department?' %>')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <i class="fas fa-sitemap fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted"><%= lang === 'ar' ? 'لا توجد إدارات' : 'No departments found' %></p>
+                                        <button class="btn btn-luxury" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+                                            <i class="fas fa-plus me-2"></i>
+                                            <%= lang === 'ar' ? 'إضافة أول إدارة' : 'Add First Department' %>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal إضافة إدارة -->
+    <div class="modal fade" id="addDepartmentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-gold">
+                        <i class="fas fa-plus me-2"></i>
+                        <%= lang === 'ar' ? 'إضافة إدارة جديدة' : 'Add New Department' %>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="/admin/departments?lang=<%= lang %>" method="POST">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'اسم الإدارة (عربي)' : 'Department Name (Arabic)' %> *</label>
+                                    <input type="text" class="form-control" name="name[ar]" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'اسم الإدارة (إنجليزي)' : 'Department Name (English)' %> *</label>
+                                    <input type="text" class="form-control" name="name[en]" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><%= lang === 'ar' ? 'وصف الإدارة' : 'Department Description' %></label>
+                            <textarea class="form-control" name="description" rows="3"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'اسم المدير' : 'Manager Name' %></label>
+                                    <input type="text" class="form-control" name="manager">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'البريد الإلكتروني' : 'Email' %></label>
+                                    <input type="email" class="form-control" name="email">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'رقم الهاتف' : 'Phone' %></label>
+                                    <input type="tel" class="form-control" name="phone">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'التحويلة' : 'Extension' %></label>
+                                    <input type="text" class="form-control" name="extension">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="isActive" id="isActive" checked>
+                                <label class="form-check-label" for="isActive">
+                                    <%= lang === 'ar' ? 'إدارة نشطة' : 'Active Department' %>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <%= t.cancel %>
+                        </button>
+                        <button type="submit" class="btn btn-luxury">
+                            <i class="fas fa-save me-2"></i>
+                            <%= t.save %>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal تعديل إدارة -->
+    <div class="modal fade" id="editDepartmentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-gold">
+                        <i class="fas fa-edit me-2"></i>
+                        <%= lang === 'ar' ? 'تعديل الإدارة' : 'Edit Department' %>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editDepartmentForm" method="POST">
+                    <input type="hidden" name="_method" value="PUT">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'اسم الإدارة (عربي)' : 'Department Name (Arabic)' %> *</label>
+                                    <input type="text" class="form-control" name="name[ar]" id="editNameAr" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'اسم الإدارة (إنجليزي)' : 'Department Name (English)' %> *</label>
+                                    <input type="text" class="form-control" name="name[en]" id="editNameEn" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><%= lang === 'ar' ? 'وصف الإدارة' : 'Department Description' %></label>
+                            <textarea class="form-control" name="description" id="editDescription" rows="3"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'اسم المدير' : 'Manager Name' %></label>
+                                    <input type="text" class="form-control" name="manager" id="editManager">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'البريد الإلكتروني' : 'Email' %></label>
+                                    <input type="email" class="form-control" name="email" id="editEmail">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'رقم الهاتف' : 'Phone' %></label>
+                                    <input type="tel" class="form-control" name="phone" id="editPhone">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'التحويلة' : 'Extension' %></label>
+                                    <input type="text" class="form-control" name="extension" id="editExtension">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="isActive" id="editIsActive">
+                                <label class="form-check-label" for="editIsActive">
+                                    <%= lang === 'ar' ? 'إدارة نشطة' : 'Active Department' %>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <%= t.cancel %>
+                        </button>
+                        <button type="submit" class="btn btn-luxury">
+                            <i class="fas fa-save me-2"></i>
+                            <%= t.update %>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/scripts') %>
+    
+    <script>
+        // تعديل بيانات الإدارة
+        document.addEventListener('DOMContentLoaded', function() {
+            const editModal = document.getElementById('editDepartmentModal');
+            if (editModal) {
+                editModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const id = button.getAttribute('data-id');
+                    const form = document.getElementById('editDepartmentForm');
+                    
+                    form.action = `/admin/departments/${id}?lang=<%= lang %>`;
+                    document.getElementById('editNameAr').value = button.getAttribute('data-name-ar');
+                    document.getElementById('editNameEn').value = button.getAttribute('data-name-en');
+                    document.getElementById('editDescription').value = button.getAttribute('data-description');
+                    document.getElementById('editManager').value = button.getAttribute('data-manager');
+                    document.getElementById('editEmail').value = button.getAttribute('data-email');
+                    document.getElementById('editPhone').value = button.getAttribute('data-phone');
+                    document.getElementById('editExtension').value = button.getAttribute('data-extension');
+                    document.getElementById('editIsActive').checked = button.getAttribute('data-isactive') === 'true';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

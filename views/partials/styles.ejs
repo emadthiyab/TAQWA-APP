@@ -1,0 +1,105 @@
+<style>
+    <%= getCSS(dir, isRTL) %>
+    
+    /* تحسينات إضافية موحدة */
+    .dashboard-content {
+        margin-<%= isRTL ? 'right' : 'left' %>: 280px;
+        min-height: 100vh;
+        background: var(--gray);
+        transition: all 0.3s ease;
+    }
+    
+    .content-wrapper {
+        padding: 2rem;
+    }
+    
+    /* تحسينات للجداول */
+    .table-luxury {
+        background: var(--light);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    
+    .table-luxury th {
+        background: var(--gold-gradient);
+        color: var(--dark);
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+    }
+    
+    .table-luxury td {
+        padding: 1rem;
+        border-color: rgba(212, 175, 55, 0.1);
+        vertical-align: middle;
+    }
+    
+    .table-luxury tbody tr:hover {
+        background: rgba(212, 175, 55, 0.05);
+    }
+    
+    /* تحسينات للنماذج */
+    .form-luxury {
+        background: var(--light);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    /* تحسينات للأزرار */
+    .btn-group-luxury {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    /* تحسينات للبطاقات */
+    .card-header-luxury {
+        background: var(--gold-gradient);
+        color: var(--dark);
+        padding: 1rem 1.5rem;
+        border-bottom: none;
+        font-weight: 600;
+    }
+    
+    /* تحسينات للاستجابة */
+    @media (max-width: 768px) {
+        .dashboard-content {
+            margin-<%= isRTL ? 'right' : 'left' %>: 0 !important;
+        }
+        
+        .content-wrapper {
+            padding: 1rem;
+        }
+        
+        .table-responsive {
+            font-size: 0.875rem;
+        }
+        
+        .btn-group-luxury {
+            flex-direction: column;
+        }
+        
+        .btn-group-luxury .btn {
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>

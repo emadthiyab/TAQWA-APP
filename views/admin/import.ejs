@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+    <%- include('../partials/head') %>
+    <style>
+        .import-section {
+            border-left: 4px solid var(--gold);
+            padding-left: 1rem;
+            margin-bottom: 2rem;
+        }
+        .progress-section {
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="dashboard-bg">
+    <%- include('../partials/sidebar') %>
+    
+    <div class="main-content">
+        <%- include('../partials/navbar', { title: lang === 'ar' ? 'استيراد البيانات' : 'Data Import' }) %>
+        
+        <div class="container-fluid py-4">
+            <!-- رسائل النجاح/الخطأ -->
+            <% if (success) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <% if (success === '1') { %>
+                    <%= lang === 'ar' ? 'تم استيراد البيانات بنجاح!' : 'Data imported successfully!' %>
+                    <% if (departments) { %>
+                        <br><strong><%= lang === 'ar' ? `تم استيراد ${departments} إدارة` : `Imported ${departments} departments` %></strong>
+                    <% } %>
+                <% } else if (success === 'cleanup') { %>
+                    <%= lang === 'ar' ? 'تم تنظيف البيانات الوهمية بنجاح!' : 'Test data cleaned up successfully!' %>
+                    <% if (typeof deleted !== 'undefined' && deleted) { %>
+                        <br><strong><%= lang === 'ar' ? `تم حذف ${deleted} موظف وهمي` : `Deleted ${deleted} test employees` %></strong>
+                    <% } %>
+                <% } else if (success === 'kpis_imported') { %>
+                    <%= lang === 'ar' ? 'تم استيراد مؤشرات الأداء بنجاح!' : 'KPIs imported successfully!' %>
+                    <% if (kpis) { %>
+                        <br><strong><%= lang === 'ar' ? `تم استيراد ${kpis} مؤشر أداء` : `Imported ${kpis} KPIs` %></strong>
+                    <% } %>
+                <% } %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+            
+            <% if (error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <% if (error === 'import_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في استيراد البيانات' : 'Failed to import data' %>
+                <% } else if (error === 'cleanup_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في تنظيف البيانات' : 'Failed to clean up data' %>
+                <% } else if (error === 'kpis_import_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في استيراد مؤشرات الأداء' : 'Failed to import KPIs' %>
+                <% } else { %>
+                    <%= lang === 'ar' ? 'حدث خطأ أثناء الاستيراد' : 'An error occurred during import' %>
+                <% } %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+
+            <!-- قسم استيراد الإدارات -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="luxury-card p-4">
+                        <h5 class="text-gold mb-3">
+                            <i class="fas fa-building me-2"></i>
+                            <%= lang === 'ar' ? 'استيراد الإدارات الأساسية' : 'Import Basic Departments' %>
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <p class="text-muted mb-3">
+                                    <%= lang === 'ar' ? 'سيتم إنشاء الإدارات الأساسية من بيانات فندق دار التقوى' : 'Basic departments will be created from Taqwa Hotel data' %>
+                                </p>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i><%= lang === 'ar' ? '17 إدارة أساسية' : '17 Basic departments' %></li>
+                                    <li><i class="fas fa-check text-success me-2"></i><%= lang === 'ar' ? 'بيانات الميزانية والأداء' : 'Budget and performance data' %></li>
+                                    <li><i class="fas fa-check text-success me-2"></i><%= lang === 'ar' ? 'لا يتم إنشاء موظفين وهميين' : 'No dummy employees created' %></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <form action="/admin/import/manual-import?lang=<%= lang %>" method="POST" class="h-100 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-luxury w-100">
+                                        <i class="fas fa-play me-2"></i>
+                                        <%= lang === 'ar' ? 'استيراد الإدارات' : 'Import Departments' %>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم استيراد مؤشرات الأداء -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="luxury-card p-4">
+                        <h5 class="text-gold mb-3">
+                            <i class="fas fa-chart-line me-2"></i>
+                            <%= lang === 'ar' ? 'استيراد مؤشرات الأداء (KPI)' : 'Import KPIs (Key Performance Indicators)' %>
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <p class="text-muted mb-3">
+                                    <%= lang === 'ar' ? 'استيراد مؤشرات الأداء من ملف Excel مع النتائج الربعية' : 'Import KPIs from Excel file with quarterly results' %>
+                                </p>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i><%= lang === 'ar' ? 'أكثر من 100 مؤشر أداء' : 'Over 100 KPIs' %></li>
+                                    <li><i class="fas fa-check text-success me-2"></i><%= lang === 'ar' ? 'النتائج المتحققة للربع الأول والثاني والثالث' : 'Achieved results for Q1, Q2, Q3' %></li>
+                                    <li><i class="fas fa-check text-success me-2"></i><%= lang === 'ar' ? 'ربط تلقائي مع الإدارات الموجودة' : 'Automatic linking with existing departments' %></li>
+                                    <li><i class="fas fa-check text-success me-2"></i><%= lang === 'ar' ? 'تحديث تلقائي للتقدم والإحصائيات' : 'Automatic progress and statistics updates' %></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <form action="/admin/import/kpis-import?lang=<%= lang %>" method="POST" class="h-100 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-luxury w-100">
+                                        <i class="fas fa-file-excel me-2"></i>
+                                        <%= lang === 'ar' ? 'استيراد مؤشرات الأداء' : 'Import KPIs' %>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم تنظيف البيانات -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="luxury-card p-4 mb-4">
+                        <h5 class="text-gold mb-3">
+                            <i class="fas fa-broom me-2"></i>
+                            <%= lang === 'ar' ? 'تنظيف البيانات الوهمية' : 'Clean Test Data' %>
+                        </h5>
+                        
+                        <p class="text-muted mb-4">
+                            <%= lang === 'ar' ? 'حذف جميع البيانات الوهمية والاختبارية' : 'Delete all test and dummy data' %>
+                        </p>
+                        
+                        <form action="/admin/import/cleanup?lang=<%= lang %>" method="POST">
+                            <button type="submit" class="btn btn-outline-luxury w-100" onclick="return confirm('<%= lang === 'ar' ? 'هل أنت متأكد من حذف جميع البيانات الوهمية؟' : 'Are you sure you want to delete all test data?' %>')">
+                                <i class="fas fa-trash me-2"></i>
+                                <%= lang === 'ar' ? 'تنظيف البيانات الوهمية' : 'Clean Test Data' %>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="luxury-card p-4">
+                        <h5 class="text-gold mb-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <%= lang === 'ar' ? 'معلومات النظام' : 'System Information' %>
+                        </h5>
+                        
+                        <div class="mb-3">
+                            <h6 class="text-dark"><%= lang === 'ar' ? 'إحصائيات قاعدة البيانات:' : 'Database Statistics:' %></h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-building text-gold me-2"></i>
+                                    <%= lang === 'ar' ? `${departmentsCount || 0} إدارة` : `${departmentsCount || 0} departments` %>
+                                </li>
+                                <li><i class="fas fa-chart-line text-gold me-2"></i>
+                                    <%= lang === 'ar' ? `${kpisCount || 0} مؤشر أداء` : `${kpisCount || 0} KPIs` %>
+                                </li>
+                                <li><i class="fas fa-users text-gold me-2"></i>
+                                    <%= lang === 'ar' ? `${employeesCount || 0} موظف` : `${employeesCount || 0} employees` %>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <small>
+                                <i class="fas fa-lightbulb me-2"></i>
+                                <%= lang === 'ar' ? 'بعد استيراد البيانات، يمكنك إدارة المؤشرات من صفحة إدارة مؤشرات الأداء' : 'After importing data, you can manage KPIs from the KPIs management page' %>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/scripts') %>
+</body>
+</html>

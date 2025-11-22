@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+    <%- include('../partials/head') %>
+    <style>
+        .evaluation-section {
+            border: 2px solid var(--gold);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            background: #fff;
+        }
+        .criteria-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--gold);
+        }
+        .rating-stars {
+            display: flex;
+            gap: 5px;
+        }
+        .star {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #ddd;
+            transition: color 0.2s;
+        }
+        .star.active {
+            color: var(--gold);
+        }
+        .score-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--gold);
+        }
+    </style>
+</head>
+<body class="dashboard-bg">
+    <%- include('../partials/sidebar') %>
+    
+    <div class="main-content">
+        <%- include('../partials/navbar', { title: title }) %>
+        
+        <div class="container-fluid py-4">
+            <!-- رسائل النجاح/الخطأ -->
+            <% if (success) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <%= lang === 'ar' ? 'تم تحديث التقييم بنجاح!' : 'Evaluation updated successfully!' %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+            
+            <% if (error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <%= lang === 'ar' ? 'فشل في تحديث التقييم' : 'Failed to update evaluation' %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+
+            <div class="row">
+                <div class="col-12">
+                    <!-- معلومات التقييم -->
+                    <div class="luxury-card p-4 mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4 class="text-gold mb-3">
+                                    <i class="fas fa-user-tie me-2"></i>
+                                    <%= lang === 'ar' ? 'تقييم الأداء' : 'Performance Evaluation' %>
+                                </h4>
+                                <p class="mb-1">
+                                    <strong><%= lang === 'ar' ? 'الموظف:' : 'Employee:' %></strong> 
+                                    <%= evaluation.employee ? (lang === 'ar' ? evaluation.employee.name.ar : evaluation.employee.name.en) : 'N/A' %>
+                                </p>
+                                <p class="mb-1">
+                                    <strong><%= lang === 'ar' ? 'فترة التقييم:' : 'Evaluation Period:' %></strong> 
+                                    <%= evaluation.evaluationPeriod %>
+                                </p>
+                                <p class="mb-1">
+                                    <strong><%= lang === 'ar' ? 'المقيم:' : 'Evaluator:' %></strong> 
+                                    <%= evaluation.evaluator ? evaluation.evaluator.name : 'N/A' %>
+                                </p>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <div class="mb-3">
+                                    <%
+                                    let statusClass = '';
+                                    let statusText = '';
+                                    switch(evaluation.status) {
+                                        case 'draft':
+                                            statusClass = 'status-draft';
+                                            statusText = lang === 'ar' ? 'مسودة' : 'Draft';
+                                            break;
+                                        case 'in_progress':
+                                            statusClass = 'status-in_progress';
+                                            statusText = lang === 'ar' ? 'قيد التنفيذ' : 'In Progress';
+                                            break;
+                                        case 'completed':
+                                            statusClass = 'status-completed';
+                                            statusText = lang === 'ar' ? 'مكتمل' : 'Completed';
+                                            break;
+                                        case 'approved':
+                                            statusClass = 'status-approved';
+                                            statusText = lang === 'ar' ? 'معتمد' : 'Approved';
+                                            break;
+                                        case 'rejected':
+                                            statusClass = 'status-rejected';
+                                            statusText = lang === 'ar' ? 'مرفوض' : 'Rejected';
+                                            break;
+                                    }
+                                    %>
+                                    <span class="status-badge <%= statusClass %>">
+                                        <%= statusText %>
+                                    </span>
+                                </div>
+                                <% if (evaluation.finalResults && evaluation.finalResults.overallPerformanceScore) { %>
+                                <div class="score-display">
+                                    <%= evaluation.finalResults.overallPerformanceScore.toFixed(1) %> / 10
+                                </div>
+                                <div class="text-muted">
+                                    <%= evaluation.finalResults.performanceDescription %>
+                                </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="evaluationForm" action="/admin/evaluation/evaluations/<%= evaluation._id %>?lang=<%= lang %>" method="POST">
+                        <input type="hidden" name="_method" value="PUT">
+
+                        <!-- المعلومات التنفيذية -->
+                        <div class="evaluation-section">
+                            <h5 class="text-gold mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <%= lang === 'ar' ? 'المعلومات التنفيذية' : 'Executive Information' %>
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'اسم التنفيذي' : 'Executive Name' %></label>
+                                    <input type="text" class="form-control" 
+                                           name="executiveInfo[executiveName]"
+                                           value="<%= evaluation.executiveInfo.executiveName || '' %>">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'تاريخ تقييم الأداء' : 'Performance Review Date' %></label>
+                                    <input type="date" class="form-control" 
+                                           name="executiveInfo[performanceReviewDate]"
+                                           value="<%= evaluation.executiveInfo.performanceReviewDate ? new Date(evaluation.executiveInfo.performanceReviewDate).toISOString().split('T')[0] : '' %>">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'تاريخ آخر تقييم' : 'Last Performance Review Date' %></label>
+                                    <input type="date" class="form-control" 
+                                           name="executiveInfo[lastPerformanceReviewDate]"
+                                           value="<%= evaluation.executiveInfo.lastPerformanceReviewDate ? new Date(evaluation.executiveInfo.lastPerformanceReviewDate).toISOString().split('T')[0] : '' %>">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'المشرف المباشر' : 'Direct Supervisor' %></label>
+                                    <input type="text" class="form-control" 
+                                           name="executiveInfo[directSupervisorName]"
+                                           value="<%= evaluation.executiveInfo.directSupervisorName || '' %>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- تقييم رئيس القسم (HOD) -->
+                        <div class="evaluation-section">
+                            <h5 class="text-gold mb-3">
+                                <i class="fas fa-user-shield me-2"></i>
+                                <%= lang === 'ar' ? 'تقييم رئيس القسم' : 'HOD Evaluation' %>
+                            </h5>
+                            
+                            <% evaluation.evaluations.hod.ratings.forEach((rating, index) => { %>
+                            <% if (rating.criteria) { %>
+                            <div class="criteria-item">
+                                <h6 class="text-dark">
+                                    <%= lang === 'ar' ? rating.criteria.name.ar : rating.criteria.name.en %>
+                                </h6>
+                                <% if (rating.criteria.description && rating.criteria.description.ar) { %>
+                                <p class="text-muted mb-3">
+                                    <%= lang === 'ar' ? rating.criteria.description.ar : rating.criteria.description.en %>
+                                </p>
+                                <% } %>
+                                
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <div class="rating-stars mb-3" id="stars-hod-<%= index %>">
+                                            <% for (let i = 1; i <= 5; i++) { %>
+                                            <span class="star <%= i <= rating.score ? 'active' : '' %>" 
+                                                  data-rating="<%= i %>"
+                                                  data-criteria="hod-<%= rating.criteria._id %>">
+                                                ★
+                                            </span>
+                                            <% } %>
+                                        </div>
+                                        <input type="hidden" 
+                                               name="ratings[hod][<%= index %>][score]" 
+                                               id="score-hod-<%= rating.criteria._id %>"
+                                               value="<%= rating.score %>">
+                                        <input type="hidden" 
+                                               name="ratings[hod][<%= index %>][criteriaId]"
+                                               value="<%= rating.criteria._id %>">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label"><%= lang === 'ar' ? 'التعليقات' : 'Comments' %></label>
+                                        <textarea class="form-control" 
+                                                  name="ratings[hod][<%= index %>][comments]"
+                                                  rows="2"><%= rating.comments || '' %></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <% } %>
+                            <% }) %>
+                        </div>
+
+                        <!-- تقييم الموارد البشرية (HR) -->
+                        <div class="evaluation-section">
+                            <h5 class="text-gold mb-3">
+                                <i class="fas fa-users me-2"></i>
+                                <%= lang === 'ar' ? 'تقييم الموارد البشرية' : 'HR Evaluation' %>
+                            </h5>
+                            
+                            <% evaluation.evaluations.hr.ratings.forEach((rating, index) => { %>
+                            <% if (rating.criteria) { %>
+                            <div class="criteria-item">
+                                <h6 class="text-dark">
+                                    <%= lang === 'ar' ? rating.criteria.name.ar : rating.criteria.name.en %>
+                                </h6>
+                                <% if (rating.criteria.description && rating.criteria.description.ar) { %>
+                                <p class="text-muted mb-3">
+                                    <%= lang === 'ar' ? rating.criteria.description.ar : rating.criteria.description.en %>
+                                </p>
+                                <% } %>
+                                
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <div class="rating-stars mb-3" id="stars-hr-<%= index %>">
+                                            <% for (let i = 1; i <= 5; i++) { %>
+                                            <span class="star <%= i <= rating.score ? 'active' : '' %>" 
+                                                  data-rating="<%= i %>"
+                                                  data-criteria="hr-<%= rating.criteria._id %>">
+                                                ★
+                                            </span>
+                                            <% } %>
+                                        </div>
+                                        <input type="hidden" 
+                                               name="ratings[hr][<%= index %>][score]" 
+                                               id="score-hr-<%= rating.criteria._id %>"
+                                               value="<%= rating.score %>">
+                                        <input type="hidden" 
+                                               name="ratings[hr][<%= index %>][criteriaId]"
+                                               value="<%= rating.criteria._id %>">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label"><%= lang === 'ar' ? 'التعليقات' : 'Comments' %></label>
+                                        <textarea class="form-control" 
+                                                  name="ratings[hr][<%= index %>][comments]"
+                                                  rows="2"><%= rating.comments || '' %></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <% } %>
+                            <% }) %>
+                        </div>
+
+                        <!-- تقييم المدير العام (GM) -->
+                        <div class="evaluation-section">
+                            <h5 class="text-gold mb-3">
+                                <i class="fas fa-crown me-2"></i>
+                                <%= lang === 'ar' ? 'تقييم المدير العام' : 'GM Evaluation' %>
+                            </h5>
+                            
+                            <% evaluation.evaluations.gm.ratings.forEach((rating, index) => { %>
+                            <% if (rating.criteria) { %>
+                            <div class="criteria-item">
+                                <h6 class="text-dark">
+                                    <%= lang === 'ar' ? rating.criteria.name.ar : rating.criteria.name.en %>
+                                </h6>
+                                <% if (rating.criteria.description && rating.criteria.description.ar) { %>
+                                <p class="text-muted mb-3">
+                                    <%= lang === 'ar' ? rating.criteria.description.ar : rating.criteria.description.en %>
+                                </p>
+                                <% } %>
+                                
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <div class="rating-stars mb-3" id="stars-gm-<%= index %>">
+                                            <% for (let i = 1; i <= 5; i++) { %>
+                                            <span class="star <%= i <= rating.score ? 'active' : '' %>" 
+                                                  data-rating="<%= i %>"
+                                                  data-criteria="gm-<%= rating.criteria._id %>">
+                                                ★
+                                            </span>
+                                            <% } %>
+                                        </div>
+                                        <input type="hidden" 
+                                               name="ratings[gm][<%= index %>][score]" 
+                                               id="score-gm-<%= rating.criteria._id %>"
+                                               value="<%= rating.score %>">
+                                        <input type="hidden" 
+                                               name="ratings[gm][<%= index %>][criteriaId]"
+                                               value="<%= rating.criteria._id %>">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label"><%= lang === 'ar' ? 'التعليقات' : 'Comments' %></label>
+                                        <textarea class="form-control" 
+                                                  name="ratings[gm][<%= index %>][comments]"
+                                                  rows="2"><%= rating.comments || '' %></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <% } %>
+                            <% }) %>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'ملاحظات المدير العام' : 'GM Remarks' %></label>
+                                <textarea class="form-control" name="ratings[gmRemarks]" rows="3">
+                                    <%= evaluation.evaluations.gm.remarks || '' %>
+                                </textarea>
+                            </div>
+                        </div>
+
+                        <!-- التقييم الشامل -->
+                        <div class="evaluation-section">
+                            <h5 class="text-gold mb-3">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                <%= lang === 'ar' ? 'التقييم الشامل' : 'Overall Evaluation' %>
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'جودة العمل' : 'Quality of Work' %></label>
+                                    <input type="number" class="form-control" step="0.1" min="0" max="5"
+                                           name="overallRatings[qualityOfWork][score]"
+                                           value="<%= evaluation.overallRatings.qualityOfWork.score || 0 %>">
+                                    <textarea class="form-control mt-2" 
+                                              name="overallRatings[qualityOfWork][comments]"
+                                              placeholder="<%= lang === 'ar' ? 'التعليقات' : 'Comments' %>"
+                                              rows="2"><%= evaluation.overallRatings.qualityOfWork.comments || '' %></textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الإنتاجية' : 'Productivity' %></label>
+                                    <input type="number" class="form-control" step="0.1" min="0" max="5"
+                                           name="overallRatings[productivity][score]"
+                                           value="<%= evaluation.overallRatings.productivity.score || 0 %>">
+                                    <textarea class="form-control mt-2" 
+                                              name="overallRatings[productivity][comments]"
+                                              placeholder="<%= lang === 'ar' ? 'التعليقات' : 'Comments' %>"
+                                              rows="2"><%= evaluation.overallRatings.productivity.comments || '' %></textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'حل المشكلات' : 'Problem Solving' %></label>
+                                    <input type="number" class="form-control" step="0.1" min="0" max="5"
+                                           name="overallRatings[problemSolving][score]"
+                                           value="<%= evaluation.overallRatings.problemSolving.score || 0 %>">
+                                    <textarea class="form-control mt-2" 
+                                              name="overallRatings[problemSolving][comments]"
+                                              placeholder="<%= lang === 'ar' ? 'التعليقات' : 'Comments' %>"
+                                              rows="2"><%= evaluation.overallRatings.problemSolving.comments || '' %></textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'خدمة العملاء' : 'Customer Service' %></label>
+                                    <input type="number" class="form-control" step="0.1" min="0" max="5"
+                                           name="overallRatings[customerService][score]"
+                                           value="<%= evaluation.overallRatings.customerService.score || 0 %>">
+                                    <textarea class="form-control mt-2" 
+                                              name="overallRatings[customerService][comments]"
+                                              placeholder="<%= lang === 'ar' ? 'التعليقات' : 'Comments' %>"
+                                              rows="2"><%= evaluation.overallRatings.customerService.comments || '' %></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- تعليقات الموظف -->
+                        <div class="evaluation-section">
+                            <h5 class="text-gold mb-3">
+                                <i class="fas fa-comment me-2"></i>
+                                <%= lang === 'ar' ? 'تعليقات الموظف' : 'Employee Comments' %>
+                            </h5>
+                            <textarea class="form-control" name="employeeComments" rows="4"
+                                      placeholder="<%= lang === 'ar' ? 'تعليقات الموظف على التقييم...' : 'Employee comments on the evaluation...' %>"><%= evaluation.employeeComments || '' %></textarea>
+                        </div>
+
+                        <!-- أزرار التحكم -->
+                        <div class="evaluation-section">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label"><%= lang === 'ar' ? 'حالة التقييم' : 'Evaluation Status' %></label>
+                                    <select class="form-select" name="status">
+                                        <option value="draft" <%= evaluation.status === 'draft' ? 'selected' : '' %>>
+                                            <%= lang === 'ar' ? 'مسودة' : 'Draft' %>
+                                        </option>
+                                        <option value="in_progress" <%= evaluation.status === 'in_progress' ? 'selected' : '' %>>
+                                            <%= lang === 'ar' ? 'قيد التنفيذ' : 'In Progress' %>
+                                        </option>
+                                        <option value="completed" <%= evaluation.status === 'completed' ? 'selected' : '' %>>
+                                            <%= lang === 'ar' ? 'مكتمل' : 'Completed' %>
+                                        </option>
+                                        <option value="approved" <%= evaluation.status === 'approved' ? 'selected' : '' %>>
+                                            <%= lang === 'ar' ? 'معتمد' : 'Approved' %>
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <div class="btn-group w-100">
+                                        <button type="submit" class="btn btn-luxury">
+                                            <i class="fas fa-save me-2"></i>
+                                            <%= lang === 'ar' ? 'حفظ التقييم' : 'Save Evaluation' %>
+                                        </button>
+                                        <a href="/admin/evaluation/evaluations?lang=<%= lang %>" class="btn btn-outline-secondary">
+                                            <i class="fas fa-arrow-left me-2"></i>
+                                            <%= lang === 'ar' ? 'رجوع' : 'Back' %>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/scripts') %>
+    
+    <script>
+        // نظام التقييم بالنجوم
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('.star');
+            
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    const criteria = this.getAttribute('data-criteria');
+                    const starGroup = this.parentElement;
+                    
+                    // تحديث النجومات
+                    const starsInGroup = starGroup.querySelectorAll('.star');
+                    starsInGroup.forEach((s, index) => {
+                        if (index < rating) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                    
+                    // تحديث الحقل المخفي
+                    const scoreInput = document.getElementById('score-' + criteria);
+                    if (scoreInput) {
+                        scoreInput.value = rating;
+                    }
+                    
+                    // إعادة حساب النتائج
+                    calculateResults();
+                });
+            });
+            
+            // دالة لحساب النتائج (سيتم تطويرها لاحقاً)
+            function calculateResults() {
+                console.log('Recalculating results...');
+                // سيتم إضافة منطق حساب النتائج هنا
+            }
+        });
+    </script>
+</body>
+</html>

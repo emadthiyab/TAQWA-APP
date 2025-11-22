@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+
+<head>
+    <%- include('../partials/head') %>
+        <style>
+            .kpi-card {
+                border-left: 4px solid var(--gold);
+                transition: all 0.3s ease;
+            }
+
+            .kpi-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            .quarter-results {
+                background: rgba(212, 175, 55, 0.05);
+                border-radius: 8px;
+                padding: 1rem;
+                margin-top: 1rem;
+            }
+
+            .progress-sm {
+                height: 6px;
+            }
+        </style>
+</head>
+
+<body class="dashboard-bg">
+    <%- include('../partials/sidebar') %>
+
+        <div class="main-content">
+            <%- include('../partials/navbar', { title: lang==='ar' ? 'إدارة مؤشرات الأداء' : 'KPIs Management' }) %>
+
+                <div class="container-fluid py-4">
+                    <!-- رسائل النجاح/الخطأ -->
+                    <% if (success) { %>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <% if (success==='kpi_created' ) { %>
+                                <%= lang==='ar' ? 'تم إضافة المؤشر بنجاح!' : 'KPI added successfully!' %>
+                                    <% } else if (success==='kpi_updated' ) { %>
+                                        <%= lang==='ar' ? 'تم تحديث المؤشر بنجاح!' : 'KPI updated successfully!' %>
+                                            <% } else if (success==='kpi_deleted' ) { %>
+                                                <%= lang==='ar' ? 'تم حذف المؤشر بنجاح!' : 'KPI deleted successfully!'
+                                                    %>
+                                                    <% } else if (success==='quarterly_results_updated' ) { %>
+                                                        <%= lang==='ar' ? 'تم تحديث النتائج الربعية بنجاح!'
+                                                            : 'Quarterly results updated successfully!' %>
+                                                            <% } %>
+                                                                <button type="button" class="btn-close"
+                                                                    data-bs-dismiss="alert"></button>
+                        </div>
+                        <% } %>
+
+                            <% if (error) { %>
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <% if (error==='kpi_create_failed' ) { %>
+                                        <%= lang==='ar' ? 'فشل في إضافة المؤشر' : 'Failed to add KPI' %>
+                                            <% } else if (error==='kpi_update_failed' ) { %>
+                                                <%= lang==='ar' ? 'فشل في تحديث المؤشر' : 'Failed to update KPI' %>
+                                                    <% } else if (error==='kpi_delete_failed' ) { %>
+                                                        <%= lang==='ar' ? 'فشل في حذف المؤشر' : 'Failed to delete KPI'
+                                                            %>
+                                                            <% } else if (error==='quarterly_update_failed' ) { %>
+                                                                <%= lang==='ar' ? 'فشل في تحديث النتائج الربعية'
+                                                                    : 'Failed to update quarterly results' %>
+                                                                    <% } %>
+                                                                        <button type="button" class="btn-close"
+                                                                            data-bs-dismiss="alert"></button>
+                                </div>
+                                <% } %>
+
+                                    <!-- إحصائيات سريعة -->
+                                    <div class="row mb-4">
+                                        <div class="col-xl-3 col-md-6">
+                                            <div class="stat-card">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <h3 class="stat-number" id="totalKPIs">0</h3>
+                                                        <p class="mb-0">
+                                                            <%= lang==='ar' ? 'إجمالي المؤشرات' : 'Total KPIs' %>
+                                                        </p>
+                                                    </div>
+                                                    <div class="stat-icon">
+                                                        <i class="fas fa-chart-line"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-md-6">
+                                            <div class="stat-card">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <h3 class="stat-number" id="completedKPIs">0</h3>
+                                                        <p class="mb-0">
+                                                            <%= lang==='ar' ? 'مكتمل' : 'Completed' %>
+                                                        </p>
+                                                    </div>
+                                                    <div class="stat-icon">
+                                                        <i class="fas fa-check-circle"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-md-6">
+                                            <div class="stat-card">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <h3 class="stat-number" id="inProgressKPIs">0</h3>
+                                                        <p class="mb-0">
+                                                            <%= lang==='ar' ? 'قيد التقدم' : 'In Progress' %>
+                                                        </p>
+                                                    </div>
+                                                    <div class="stat-icon">
+                                                        <i class="fas fa-spinner"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-md-6">
+                                            <div class="stat-card">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <h3 class="stat-number" id="averageProgress">0%</h3>
+                                                        <p class="mb-0">
+                                                            <%= lang==='ar' ? 'متوسط التقدم' : 'Average Progress' %>
+                                                        </p>
+                                                    </div>
+                                                    <div class="stat-icon">
+                                                        <i class="fas fa-tachometer-alt"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <!-- قائمة المؤشرات -->
+                                        <div class="col-12">
+                                            <div class="luxury-card p-4">
+                                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                                    <h5 class="text-gold mb-0">
+                                                        <i class="fas fa-list me-2"></i>
+                                                        <%= lang==='ar' ? 'قائمة مؤشرات الأداء' : 'KPIs List' %>
+                                                    </h5>
+                                                    <button type="button" class="btn btn-luxury" data-bs-toggle="modal"
+                                                        data-bs-target="#addKpiModal">
+                                                        <i class="fas fa-plus-circle me-2"></i>
+                                                        <%= lang==='ar' ? 'إضافة مؤشر جديد' : 'Add New KPI' %>
+                                                    </button>
+                                                </div>
+
+                                                <% if (kpis.length===0) { %>
+                                                    <div class="text-center py-5">
+                                                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                                                        <h5 class="text-muted">
+                                                            <%= lang==='ar' ? 'لا توجد مؤشرات أداء' : 'No KPIs found' %>
+                                                        </h5>
+                                                        <p class="text-muted">
+                                                            <%= lang==='ar'
+                                                                ? 'قم بإضافة مؤشرات أداء جديدة أو استيرادها من صفحة الاستيراد'
+                                                                : 'Add new KPIs or import them from the import page' %>
+                                                        </p>
+                                                        <a href="/admin/import?lang=<%= lang %>" class="btn btn-luxury">
+                                                            <i class="fas fa-file-excel me-2"></i>
+                                                            <%= lang==='ar' ? 'استيراد المؤشرات' : 'Import KPIs' %>
+                                                        </a>
+                                                    </div>
+                                                    <% } else { %>
+                                                        <div class="table-responsive">
+                                                            <table class="table table-striped">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>
+                                                                            <%= lang==='ar' ? 'المؤشر' : 'KPI' %>
+                                                                        </th>
+                                                                        <th>
+                                                                            <%= lang==='ar' ? 'الإدارة' : 'Department'
+                                                                                %>
+                                                                        </th>
+                                                                        <th>
+                                                                            <%= lang==='ar' ? 'الهدف' : 'Target' %>
+                                                                        </th>
+                                                                        <th>
+                                                                            <%= lang==='ar' ? 'القيمة الحالية'
+                                                                                : 'Current Value' %>
+                                                                        </th>
+                                                                        <th>
+                                                                            <%= lang==='ar' ? 'التقدم' : 'Progress' %>
+                                                                        </th>
+                                                                        <th>
+                                                                            <%= lang==='ar' ? 'الحالة' : 'Status' %>
+                                                                        </th>
+                                                                        <th>
+                                                                            <%= lang==='ar' ? 'الإجراءات' : 'Actions' %>
+                                                                        </th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <% kpis.forEach(kpi=> { %>
+                                                                        <tr>
+                                                                            <td>
+                                                                                <strong>
+                                                                                    <%= lang==='ar' ? kpi.name.ar :
+                                                                                        kpi.name.en %>
+                                                                                </strong>
+                                                                                <% if (kpi.description &&
+                                                                                    kpi.description.ar) { %>
+                                                                                    <br>
+                                                                                    <small class="text-muted">
+                                                                                        <%= lang==='ar' ?
+                                                                                            kpi.description.ar :
+                                                                                            kpi.description.en %>
+                                                                                    </small>
+                                                                                    <% } %>
+                                                                            </td>
+                                                                            <td>
+                                                                                <span class="badge bg-light text-dark">
+                                                                                    <%= lang==='ar' ?
+                                                                                        kpi.department.name.ar :
+                                                                                        kpi.department.name.en %>
+                                                                                </span>
+                                                                            </td>
+                                                                            <td>
+                                                                                <%= kpi.target %>
+                                                                                    <%= kpi.unit %>
+                                                                            </td>
+                                                                            <td>
+                                                                                <%= kpi.currentValue %>
+                                                                                    <%= kpi.unit %>
+                                                                            </td>
+                                                                            <td>
+                                                                                <div class="progress progress-sm"
+                                                                                    style="height: 8px;">
+                                                                                    <div class="progress-bar bg-success"
+                                                                                        style="width: <%= kpi.progress %>%">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <small>
+                                                                                    <%= kpi.progress.toFixed(1) %>%
+                                                                                </small>
+                                                                            </td>
+                                                                            <td>
+                                                                                <% if (kpi.status==='مكتمل' ) { %>
+                                                                                    <span class="badge bg-success">
+                                                                                        <%= lang==='ar' ? 'مكتمل'
+                                                                                            : 'Completed' %>
+                                                                                    </span>
+                                                                                    <% } else if
+                                                                                        (kpi.status==='في التقدم' ) { %>
+                                                                                        <span class="badge bg-warning">
+                                                                                            <%= lang==='ar'
+                                                                                                ? 'في التقدم'
+                                                                                                : 'In Progress' %>
+                                                                                        </span>
+                                                                                        <% } else if
+                                                                                            (kpi.status==='متأخر' ) { %>
+                                                                                            <span
+                                                                                                class="badge bg-danger">
+                                                                                                <%= lang==='ar'
+                                                                                                    ? 'متأخر'
+                                                                                                    : 'Delayed' %>
+                                                                                            </span>
+                                                                                            <% } else { %>
+                                                                                                <span
+                                                                                                    class="badge bg-secondary">
+                                                                                                    <%= lang==='ar'
+                                                                                                        ? 'معلق'
+                                                                                                        : 'Pending' %>
+                                                                                                </span>
+                                                                                                <% } %>
+                                                                            </td>
+                                                                            <td>
+                                                                                <div class="btn-group btn-group-sm">
+                                                                                    <button type="button"
+                                                                                        class="btn btn-outline-primary"
+                                                                                        data-bs-toggle="modal"
+                                                                                        data-bs-target="#editKpiModal"
+                                                                                        onclick="loadKpiData('<%= kpi._id %>')">
+                                                                                        <i class="fas fa-edit"></i>
+                                                                                    </button>
+                                                                                    <button type="button"
+                                                                                        class="btn btn-outline-info"
+                                                                                        data-bs-toggle="modal"
+                                                                                        data-bs-target="#quarterlyResultsModal"
+                                                                                        onclick="loadQuarterlyData('<%= kpi._id %>')">
+                                                                                        <i class="fas fa-chart-bar"></i>
+                                                                                    </button>
+                                                                                    <form
+                                                                                        action="/admin/kpis/<%= kpi._id %>?lang=<%= lang %>"
+                                                                                        method="POST" class="d-inline">
+                                                                                        <input type="hidden"
+                                                                                            name="_method"
+                                                                                            value="DELETE">
+                                                                                        <button type="submit"
+                                                                                            class="btn btn-outline-danger"
+                                                                                            onclick="return confirm('<%= lang === 'ar' ? 'هل أنت متأكد من حذف هذا المؤشر؟' : 'Are you sure you want to delete this KPI?' %>')">
+                                                                                            <i class="fas fa-trash"></i>
+                                                                                        </button>
+                                                                                    </form>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <% }); %>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <% } %>
+                                            </div>
+
+                                            <!-- قسم النتائج الربعية -->
+                                            <div class="luxury-card p-4 mt-4">
+                                                <h5 class="text-gold mb-4">
+                                                    <i class="fas fa-chart-bar me-2"></i>
+                                                    <%= lang==='ar' ? 'النتائج الربعية' : 'Quarterly Results' %>
+                                                </h5>
+
+                                                <div class="table-responsive">
+                                                    <table class="table table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>
+                                                                    <%= lang==='ar' ? 'المؤشر' : 'KPI' %>
+                                                                </th>
+                                                                <th>
+                                                                    <%= lang==='ar' ? 'الهدف' : 'Target' %>
+                                                                </th>
+                                                                <th>
+                                                                    <%= lang==='ar' ? 'الربع الأول' : 'Q1' %>
+                                                                </th>
+                                                                <th>
+                                                                    <%= lang==='ar' ? 'الربع الثاني' : 'Q2' %>
+                                                                </th>
+                                                                <th>
+                                                                    <%= lang==='ar' ? 'الربع الثالث' : 'Q3' %>
+                                                                </th>
+                                                                <th>
+                                                                    <%= lang==='ar' ? 'الربع الرابع' : 'Q4' %>
+                                                                </th>
+                                                                <th>
+                                                                    <%= lang==='ar' ? 'التقدم' : 'Progress' %>
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <% kpis.forEach(kpi=> { %>
+                                                                <tr>
+                                                                    <td>
+                                                                        <strong>
+                                                                            <%= lang==='ar' ? kpi.name.ar : kpi.name.en
+                                                                                %>
+                                                                        </strong>
+                                                                        <br>
+                                                                        <small class="text-muted">
+                                                                            <%= lang==='ar' ? kpi.department.name.ar :
+                                                                                kpi.department.name.en %>
+                                                                        </small>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= kpi.target %>
+                                                                            <%= kpi.unit %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <% if (kpi.quarterResults &&
+                                                                            kpi.quarterResults.q1) { %>
+                                                                            <%= kpi.quarterResults.q1 %>
+                                                                                <%= kpi.unit %>
+                                                                                    <br>
+                                                                                    <small class="text-muted">
+                                                                                        <%= kpi.quarterProgress.q1.toFixed(1)
+                                                                                            %>%
+                                                                                    </small>
+                                                                                    <% } else { %>
+                                                                                        <span
+                                                                                            class="text-muted">-</span>
+                                                                                        <% } %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <% if (kpi.quarterResults &&
+                                                                            kpi.quarterResults.q2) { %>
+                                                                            <%= kpi.quarterResults.q2 %>
+                                                                                <%= kpi.unit %>
+                                                                                    <br>
+                                                                                    <small class="text-muted">
+                                                                                        <%= kpi.quarterProgress.q2.toFixed(1)
+                                                                                            %>%
+                                                                                    </small>
+                                                                                    <% } else { %>
+                                                                                        <span
+                                                                                            class="text-muted">-</span>
+                                                                                        <% } %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <% if (kpi.quarterResults &&
+                                                                            kpi.quarterResults.q3) { %>
+                                                                            <%= kpi.quarterResults.q3 %>
+                                                                                <%= kpi.unit %>
+                                                                                    <br>
+                                                                                    <small class="text-muted">
+                                                                                        <%= kpi.quarterProgress.q3.toFixed(1)
+                                                                                            %>%
+                                                                                    </small>
+                                                                                    <% } else { %>
+                                                                                        <span
+                                                                                            class="text-muted">-</span>
+                                                                                        <% } %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <% if (kpi.quarterResults &&
+                                                                            kpi.quarterResults.q4) { %>
+                                                                            <%= kpi.quarterResults.q4 %>
+                                                                                <%= kpi.unit %>
+                                                                                    <br>
+                                                                                    <small class="text-muted">
+                                                                                        <%= kpi.quarterProgress.q4.toFixed(1)
+                                                                                            %>%
+                                                                                    </small>
+                                                                                    <% } else { %>
+                                                                                        <span
+                                                                                            class="text-muted">-</span>
+                                                                                        <% } %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="progress progress-sm"
+                                                                            style="height: 8px;">
+                                                                            <div class="progress-bar bg-success"
+                                                                                style="width: <%= kpi.progress %>%">
+                                                                            </div>
+                                                                        </div>
+                                                                        <small>
+                                                                            <%= kpi.progress.toFixed(1) %>%
+                                                                        </small>
+                                                                    </td>
+                                                                </tr>
+                                                                <% }); %>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                </div>
+        </div>
+
+        <!-- Modal إضافة مؤشر جديد -->
+        <div class="modal fade" id="addKpiModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <%= lang==='ar' ? 'إضافة مؤشر جديد' : 'Add New KPI' %>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/admin/kpis?lang=<%= lang %>" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <%= lang==='ar' ? 'اسم المؤشر (عربي)' : 'KPI Name (Arabic)' %>
+                                </label>
+                                <input type="text" class="form-control" name="name_ar" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <%= lang==='ar' ? 'اسم المؤشر (إنجليزي)' : 'KPI Name (English)' %>
+                                </label>
+                                <input type="text" class="form-control" name="name_en" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <%= lang==='ar' ? 'الوصف (عربي)' : 'Description (Arabic)' %>
+                                </label>
+                                <textarea class="form-control" name="description_ar" rows="2"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <%= lang==='ar' ? 'الوصف (إنجليزي)' : 'Description (English)' %>
+                                </label>
+                                <textarea class="form-control" name="description_en" rows="2"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <%= lang==='ar' ? 'آلية الحساب (عربي)' : 'Calculation Method (Arabic)' %>
+                                </label>
+                                <textarea class="form-control" name="calculationMethod_ar" rows="2"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <%= lang==='ar' ? 'آلية الحساب (إنجليزي)' : 'Calculation Method (English)' %>
+                                </label>
+                                <textarea class="form-control" name="calculationMethod_en" rows="2"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <%= lang==='ar' ? 'الإدارة' : 'Department' %>
+                                </label>
+                                <select class="form-select" name="department" required>
+                                    <option value="">
+                                        <%= lang==='ar' ? 'اختر الإدارة' : 'Select Department' %>
+                                    </option>
+                                    <% departments.forEach(dept=> { %>
+                                        <option value="<%= dept._id %>">
+                                            <%= lang==='ar' ? dept.name.ar : dept.name.en %>
+                                        </option>
+                                        <% }); %>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <%= lang==='ar' ? 'مخصص لـ' : 'Assigned To' %>
+                                </label>
+                                <select class="form-select" name="assignedTo">
+                                    <option value="">
+                                        <%= lang==='ar' ? 'غير مخصص' : 'Not Assigned' %>
+                                    </option>
+                                    <% employees.forEach(emp=> { %>
+                                        <option value="<%= emp._id %>">
+                                            <%= lang==='ar' ? emp.name.ar : emp.name.en %>
+                                        </option>
+                                        <% }); %>
+                                </select>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        <%= lang==='ar' ? 'الهدف' : 'Target' %>
+                                    </label>
+                                    <input type="number" step="0.01" class="form-control" name="target" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        <%= lang==='ar' ? 'الوحدة' : 'Unit' %>
+                                    </label>
+                                    <select class="form-select" name="unit">
+                                        <option value="%">%</option>
+                                        <option value="نقاط">
+                                            <%= lang==='ar' ? 'نقاط' : 'Points' %>
+                                        </option>
+                                        <option value="دقائق">
+                                            <%= lang==='ar' ? 'دقائق' : 'Minutes' %>
+                                        </option>
+                                        <option value="ساعات">
+                                            <%= lang==='ar' ? 'ساعات' : 'Hours' %>
+                                        </option>
+                                        <option value="أيام">
+                                            <%= lang==='ar' ? 'أيام' : 'Days' %>
+                                        </option>
+                                        <option value="ريال">
+                                            <%= lang==='ar' ? 'ريال' : 'SAR' %>
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <%= lang==='ar' ? 'دورة القياس' : 'Measurement Cycle' %>
+                                </label>
+                                <select class="form-select" name="measurementCycle">
+                                    <option value="يومي">
+                                        <%= lang==='ar' ? 'يومي' : 'Daily' %>
+                                    </option>
+                                    <option value="أسبوعي">
+                                        <%= lang==='ar' ? 'أسبوعي' : 'Weekly' %>
+                                    </option>
+                                    <option value="شهري" selected>
+                                        <%= lang==='ar' ? 'شهري' : 'Monthly' %>
+                                    </option>
+                                    <option value="ربع سنوي">
+                                        <%= lang==='ar' ? 'ربع سنوي' : 'Quarterly' %>
+                                    </option>
+                                    <option value="نصف سنوي">
+                                        <%= lang==='ar' ? 'نصف سنوي' : 'Semi-Annual' %>
+                                    </option>
+                                    <option value="سنوي">
+                                        <%= lang==='ar' ? 'سنوي' : 'Annual' %>
+                                    </option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-luxury w-100">
+                                <i class="fas fa-save me-2"></i>
+                                <%= lang==='ar' ? 'إضافة المؤشر' : 'Add KPI' %>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal لتعديل المؤشر -->
+        <div class="modal fade" id="editKpiModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <%= lang==='ar' ? 'تعديل المؤشر' : 'Edit KPI' %>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="editKpiForm">
+                        <!-- سيتم تحميل النموذج هنا عبر JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal للنتائج الربعية -->
+        <div class="modal fade" id="quarterlyResultsModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <%= lang==='ar' ? 'تحديث النتائج الربعية' : 'Update Quarterly Results' %>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="quarterlyResultsForm">
+                        <!-- سيتم تحميل النموذج هنا عبر JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <%- include('../partials/scripts') %>
+
+            <script>
+                // تحميل إحصائيات المؤشرات
+                async function loadKPIStats() {
+                    try {
+                        const response = await fetch('/admin/kpis/api/stats');
+                        const data = await response.json();
+
+                        if (data.success) {
+                            document.getElementById('totalKPIs').textContent = data.stats.totalKPIs;
+                            document.getElementById('completedKPIs').textContent = data.stats.completedKPIs;
+                            document.getElementById('inProgressKPIs').textContent = data.stats.inProgressKPIs;
+                            document.getElementById('averageProgress').textContent = data.stats.averageProgress + '%';
+                        }
+                    } catch (error) {
+                        console.error('Error loading KPI stats:', error);
+                    }
+                }
+
+                // تحميل بيانات المؤشر للتعديل
+                async function loadKpiData(kpiId) {
+                    try {
+                        const response = await fetch(`/admin/kpis/${kpiId}`);
+                        const data = await response.json();
+
+                        if (data.success) {
+                            const kpi = data.kpi;
+                            const form = `
+                        <form action="/admin/kpis/${kpiId}?lang=<%= lang %>" method="POST">
+                            <input type="hidden" name="_method" value="PUT">
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'اسم المؤشر (عربي)' : 'KPI Name (Arabic)' %></label>
+                                <input type="text" class="form-control" name="name_ar" value="${kpi.name.ar}" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'اسم المؤشر (إنجليزي)' : 'KPI Name (English)' %></label>
+                                <input type="text" class="form-control" name="name_en" value="${kpi.name.en}" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'الوصف (عربي)' : 'Description (Arabic)' %></label>
+                                <textarea class="form-control" name="description_ar" rows="2">${kpi.description.ar || ''}</textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'الوصف (إنجليزي)' : 'Description (English)' %></label>
+                                <textarea class="form-control" name="description_en" rows="2">${kpi.description.en || ''}</textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'آلية الحساب (عربي)' : 'Calculation Method (Arabic)' %></label>
+                                <textarea class="form-control" name="calculationMethod_ar" rows="2">${kpi.calculationMethod.ar || ''}</textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'آلية الحساب (إنجليزي)' : 'Calculation Method (English)' %></label>
+                                <textarea class="form-control" name="calculationMethod_en" rows="2">${kpi.calculationMethod.en || ''}</textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'الإدارة' : 'Department' %></label>
+                                <select class="form-select" name="department" required>
+                                    <% departments.forEach(dept => { %>
+                                    <option value="<%= dept._id %>" ${kpi.department._id.toString() === '<%= dept._id %>' ? 'selected' : ''}>
+                                        <%= lang === 'ar' ? dept.name.ar : dept.name.en %>
+                                    </option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الهدف' : 'Target' %></label>
+                                    <input type="number" step="0.01" class="form-control" name="target" value="${kpi.target}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الوحدة' : 'Unit' %></label>
+                                    <select class="form-select" name="unit">
+                                        <option value="%" ${kpi.unit === '%' ? 'selected' : ''}>%</option>
+                                        <option value="نقاط" ${kpi.unit === 'نقاط' ? 'selected' : ''}><%= lang === 'ar' ? 'نقاط' : 'Points' %></option>
+                                        <option value="دقائق" ${kpi.unit === 'دقائق' ? 'selected' : ''}><%= lang === 'ar' ? 'دقائق' : 'Minutes' %></option>
+                                        <option value="ساعات" ${kpi.unit === 'ساعات' ? 'selected' : ''}><%= lang === 'ar' ? 'ساعات' : 'Hours' %></option>
+                                        <option value="أيام" ${kpi.unit === 'أيام' ? 'selected' : ''}><%= lang === 'ar' ? 'أيام' : 'Days' %></option>
+                                        <option value="ريال" ${kpi.unit === 'ريال' ? 'selected' : ''}><%= lang === 'ar' ? 'ريال' : 'SAR' %></option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'القيمة الحالية' : 'Current Value' %></label>
+                                <input type="number" step="0.01" class="form-control" name="currentValue" value="${kpi.currentValue}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'دورة القياس' : 'Measurement Cycle' %></label>
+                                <select class="form-select" name="measurementCycle">
+                                    <option value="يومي" ${kpi.measurementCycle === 'يومي' ? 'selected' : ''}><%= lang === 'ar' ? 'يومي' : 'Daily' %></option>
+                                    <option value="أسبوعي" ${kpi.measurementCycle === 'أسبوعي' ? 'selected' : ''}><%= lang === 'ar' ? 'أسبوعي' : 'Weekly' %></option>
+                                    <option value="شهري" ${kpi.measurementCycle === 'شهري' ? 'selected' : ''}><%= lang === 'ar' ? 'شهري' : 'Monthly' %></option>
+                                    <option value="ربع سنوي" ${kpi.measurementCycle === 'ربع سنوي' ? 'selected' : ''}><%= lang === 'ar' ? 'ربع سنوي' : 'Quarterly' %></option>
+                                    <option value="نصف سنوي" ${kpi.measurementCycle === 'نصف سنوي' ? 'selected' : ''}><%= lang === 'ar' ? 'نصف سنوي' : 'Semi-Annual' %></option>
+                                    <option value="سنوي" ${kpi.measurementCycle === 'سنوي' ? 'selected' : ''}><%= lang === 'ar' ? 'سنوي' : 'Annual' %></option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'الحالة' : 'Status' %></label>
+                                <select class="form-select" name="status">
+                                    <option value="معلق" ${kpi.status === 'معلق' ? 'selected' : ''}><%= lang === 'ar' ? 'معلق' : 'Pending' %></option>
+                                    <option value="في التقدم" ${kpi.status === 'في التقدم' ? 'selected' : ''}><%= lang === 'ar' ? 'في التقدم' : 'In Progress' %></option>
+                                    <option value="مكتمل" ${kpi.status === 'مكتمل' ? 'selected' : ''}><%= lang === 'ar' ? 'مكتمل' : 'Completed' %></option>
+                                    <option value="متأخر" ${kpi.status === 'متأخر' ? 'selected' : ''}><%= lang === 'ar' ? 'متأخر' : 'Delayed' %></option>
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-luxury w-100">
+                                <i class="fas fa-save me-2"></i>
+                                <%= lang === 'ar' ? 'تحديث المؤشر' : 'Update KPI' %>
+                            </button>
+                        </form>
+                    `;
+
+                            document.getElementById('editKpiForm').innerHTML = form;
+                        }
+                    } catch (error) {
+                        console.error('Error loading KPI data:', error);
+                    }
+                }
+
+                // تحميل بيانات النتائج الربعية
+                async function loadQuarterlyData(kpiId) {
+                    try {
+                        const response = await fetch(`/admin/kpis/${kpiId}`);
+                        const data = await response.json();
+
+                        if (data.success) {
+                            const kpi = data.kpi;
+                            const form = `
+                        <form action="/admin/kpis/${kpiId}/quarterly-results?lang=<%= lang %>" method="POST">
+                            <input type="hidden" name="_method" value="PUT">
+                            
+                            <div class="mb-3">
+                                <h6>${kpi.name.ar}</h6>
+                                <p class="text-muted">${kpi.department.name.ar}</p>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الربع الأول (Q1)' : 'Quarter 1 (Q1)' %></label>
+                                    <input type="number" step="0.01" class="form-control" name="q1" value="${kpi.quarterResults.q1 || ''}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الربع الثاني (Q2)' : 'Quarter 2 (Q2)' %></label>
+                                    <input type="number" step="0.01" class="form-control" name="q2" value="${kpi.quarterResults.q2 || ''}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الربع الثالث (Q3)' : 'Quarter 3 (Q3)' %></label>
+                                    <input type="number" step="0.01" class="form-control" name="q3" value="${kpi.quarterResults.q3 || ''}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الربع الرابع (Q4)' : 'Quarter 4 (Q4)' %></label>
+                                    <input type="number" step="0.01" class="form-control" name="q4" value="${kpi.quarterResults.q4 || ''}">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'التبرير/الملاحظات' : 'Justification/Notes' %></label>
+                                <textarea class="form-control" name="justification" rows="3">${kpi.justification || ''}</textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-luxury w-100">
+                                <i class="fas fa-save me-2"></i>
+                                <%= lang === 'ar' ? 'تحديث النتائج' : 'Update Results' %>
+                            </button>
+                        </form>
+                    `;
+
+                            document.getElementById('quarterlyResultsForm').innerHTML = form;
+                        }
+                    } catch (error) {
+                        console.error('Error loading quarterly data:', error);
+                    }
+                }
+
+                // تحميل الإحصائيات عند بدء الصفحة
+                document.addEventListener('DOMContentLoaded', function () {
+                    loadKPIStats();
+                });
+            </script>
+</body>
+
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+    <%- include('../partials/head') %>
+</head>
+<body class="dashboard-bg">
+    <%- include('../partials/sidebar') %>
+    
+    <div class="main-content">
+        <%- include('../partials/navbar') %>
+        
+        <div class="container-fluid py-4">
+            <!-- رسائل الترحيب -->
+            <div class="dashboard-header">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="welcome-message">
+                            <i class="fas fa-tachometer-alt text-gold me-2"></i>
+                            <%= t.welcomeAdmin %>
+                        </h1>
+                        <p class="sub-message">
+                            <%= lang === 'ar' ? 'نظرة عامة على أداء النظام وإحصائيات الفندق' : 'Overview of system performance and hotel statistics' %>
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="text-gold">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            <span id="current-date"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الإحصائيات -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="stat-number"><%= stats.totalUsers || 0 %></h3>
+                                <p class="text-muted mb-0"><%= t.totalUsers %></p>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="stat-number"><%= stats.totalDepartments || 0 %></h3>
+                                <p class="text-muted mb-0"><%= t.totalDepartments %></p>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-sitemap"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="stat-number"><%= stats.activeProjects || 0 %></h3>
+                                <p class="text-muted mb-0"><%= t.activeProjects %></p>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="stat-number"><%= stats.pendingReports || 0 %></h3>
+                                <p class="text-muted mb-0"><%= t.pendingReports %></p>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-flag"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الإجراءات السريعة والمحتوى -->
+            <div class="row">
+                <!-- الإجراءات السريعة -->
+                <div class="col-lg-4 mb-4">
+                    <div class="luxury-card">
+                        <h5 class="text-gold mb-3">
+                            <i class="fas fa-bolt me-2"></i>
+                            <%= t.quickActions %>
+                        </h5>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <a href="/admin/employees?lang=<%= lang %>" class="quick-action-card">
+                                    <div class="quick-action-icon">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                    <h6><%= lang === 'ar' ? 'إضافة موظف' : 'Add Employee' %></h6>
+                                </a>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <a href="/admin/projects?lang=<%= lang %>" class="quick-action-card">
+                                    <div class="quick-action-icon">
+                                        <i class="fas fa-project-diagram"></i>
+                                    </div>
+                                    <h6><%= lang === 'ar' ? 'مشروع جديد' : 'New Project' %></h6>
+                                </a>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <a href="/admin/kpis?lang=<%= lang %>" class="quick-action-card">
+                                    <div class="quick-action-icon">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <h6><%= lang === 'ar' ? 'مؤشر أداء' : 'Add KPI' %></h6>
+                                </a>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <a href="/admin/reports?lang=<%= lang %>" class="quick-action-card">
+                                    <div class="quick-action-icon">
+                                        <i class="fas fa-flag"></i>
+                                    </div>
+                                    <h6><%= lang === 'ar' ? 'عرض البلاغات' : 'View Reports' %></h6>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- المشاريع الحديثة -->
+                <div class="col-lg-8 mb-4">
+                    <div class="luxury-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="text-gold mb-0">
+                                <i class="fas fa-tasks me-2"></i>
+                                <%= lang === 'ar' ? 'المشاريع الحديثة' : 'Recent Projects' %>
+                            </h5>
+                            <a href="/admin/projects?lang=<%= lang %>" class="btn btn-outline-luxury btn-sm">
+                                <%= lang === 'ar' ? 'عرض الكل' : 'View All' %>
+                            </a>
+                        </div>
+                        <div class="activity-list">
+                            <% if (recentProjects && recentProjects.length > 0) { %>
+                                <% recentProjects.forEach(project => { %>
+                                <div class="activity-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1"><%= project.name.ar %></h6>
+                                            <p class="text-muted mb-1"><%= project.description %></p>
+                                            <small class="text-muted">
+                                                <%= new Date(project.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US') %>
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-<%= project.status === 'completed' ? 'success' : project.status === 'in-progress' ? 'info' : 'warning' %>">
+                                            <%= project.status === 'completed' ? (lang === 'ar' ? 'مكتمل' : 'Completed') : 
+                                               project.status === 'in-progress' ? (lang === 'ar' ? 'قيد التنفيذ' : 'In Progress') : 
+                                               (lang === 'ar' ? 'معلق' : 'Pending') %>
+                                        </span>
+                                    </div>
+                                </div>
+                                <% }) %>
+                            <% } else { %>
+                                <div class="text-center py-4">
+                                    <i class="fas fa-tasks fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted mb-0"><%= lang === 'ar' ? 'لا توجد مشاريع حديثة' : 'No recent projects' %></p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- البلاغات الحديثة -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="luxury-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="text-gold mb-0">
+                                <i class="fas fa-flag me-2"></i>
+                                <%= lang === 'ar' ? 'البلاغات الحديثة' : 'Recent Reports' %>
+                            </h5>
+                            <a href="/admin/reports?lang=<%= lang %>" class="btn btn-outline-luxury btn-sm">
+                                <%= lang === 'ar' ? 'عرض الكل' : 'View All' %>
+                            </a>
+                        </div>
+                        <div class="activity-list">
+                            <% if (recentReports && recentReports.length > 0) { %>
+                                <% recentReports.forEach(report => { %>
+                                <div class="activity-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1"><%= report.title.ar %></h6>
+                                            <p class="text-muted mb-1"><%= report.description.substring(0, 100) %>...</p>
+                                            <small class="text-muted">
+                                                <%= new Date(report.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US') %>
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-<%= report.status === 'resolved' ? 'success' : report.status === 'in-progress' ? 'info' : 'warning' %>">
+                                            <%= report.status === 'resolved' ? (lang === 'ar' ? 'تم الحل' : 'Resolved') : 
+                                               report.status === 'in-progress' ? (lang === 'ar' ? 'قيد المعالجة' : 'In Progress') : 
+                                               (lang === 'ar' ? 'معلق' : 'Pending') %>
+                                        </span>
+                                    </div>
+                                </div>
+                                <% }) %>
+                            <% } else { %>
+                                <div class="text-center py-4">
+                                    <i class="fas fa-flag fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted mb-0"><%= lang === 'ar' ? 'لا توجد بلاغات حديثة' : 'No recent reports' %></p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/scripts') %>
+    
+    <script>
+        // تحديث التاريخ الحالي
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                timeZone: 'Asia/Riyadh'
+            };
+            const dateString = now.toLocaleDateString('<%= lang === 'ar' ? 'ar-SA' : 'en-US' %>', options);
+            document.getElementById('current-date').textContent = dateString;
+        });
+    </script>
+</body>
+</html>

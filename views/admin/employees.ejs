@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+    <%- include('../partials/head') %>
+</head>
+<body class="dashboard-bg">
+    <%- include('../partials/sidebar') %>
+    
+    <div class="main-content">
+        <%- include('../partials/navbar') %>
+        
+        <div class="container-fluid py-4">
+            <!-- رسائل النجاح/الخطأ -->
+            <% if (success) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <% if (success === 'employee_created') { %>
+                    <%= lang === 'ar' ? 'تم إضافة الموظف بنجاح!' : 'Employee added successfully!' %>
+                <% } else if (success === 'employee_updated') { %>
+                    <%= lang === 'ar' ? 'تم تحديث بيانات الموظف بنجاح!' : 'Employee updated successfully!' %>
+                <% } else if (success === 'employee_deleted') { %>
+                    <%= lang === 'ar' ? 'تم حذف الموظف بنجاح!' : 'Employee deleted successfully!' %>
+                <% } %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+            
+            <% if (error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <% if (error === 'employee_create_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في إضافة الموظف' : 'Failed to add employee' %>
+                <% } else if (error === 'employee_update_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في تحديث بيانات الموظف' : 'Failed to update employee' %>
+                <% } else if (error === 'employee_delete_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في حذف الموظف' : 'Failed to delete employee' %>
+                <% } %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="text-dark mb-0">
+                    <i class="fas fa-users text-gold me-2"></i>
+                    <%= title %>
+                </h4>
+                <button class="btn btn-luxury" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                    <i class="fas fa-plus me-2"></i>
+                    <%= lang === 'ar' ? 'إضافة موظف' : 'Add Employee' %>
+                </button>
+            </div>
+
+            <!-- جدول الموظفين -->
+            <div class="luxury-card">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th><%= lang === 'ar' ? 'اسم الموظف' : 'Employee Name' %></th>
+                                <th><%= lang === 'ar' ? 'المسمى الوظيفي' : 'Position' %></th>
+                                <th><%= lang === 'ar' ? 'الإدارة' : 'Department' %></th>
+                                <th><%= lang === 'ar' ? 'رقم الهوية' : 'TC Number' %></th>
+                                <th><%= lang === 'ar' ? 'تاريخ التعيين' : 'Hire Date' %></th>
+                                <th><%= lang === 'ar' ? 'الحالة' : 'Status' %></th>
+                                <th><%= lang === 'ar' ? 'الإجراءات' : 'Actions' %></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (employees && employees.length > 0) { %>
+                                <% employees.forEach(employee => { %>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-placeholder bg-gold text-dark rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                            <div>
+                                                <strong><%= employee.name.ar %></strong>
+                                                <br>
+                                                <small class="text-muted"><%= employee.name.en %></small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">
+                                            <%= employee.position.ar %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <% if (employee.department) { %>
+                                            <span class="text-dark"><%= employee.department.name.ar %></span>
+                                        <% } else { %>
+                                            <span class="text-muted">-</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <code><%= employee.tcNumber || '-' %></code>
+                                    </td>
+                                    <td>
+                                        <%= new Date(employee.hireDate).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US') %>
+                                    </td>
+                                    <td>
+                                        <% if (employee.isActive) { %>
+                                            <span class="status-badge status-active">
+                                                <i class="fas fa-check-circle me-1"></i>
+                                                <%= t.active %>
+                                            </span>
+                                        <% } else { %>
+                                            <span class="status-badge status-inactive">
+                                                <i class="fas fa-times-circle me-1"></i>
+                                                <%= t.inactive %>
+                                            </span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-outline-luxury" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editEmployeeModal"
+                                                    data-id="<%= employee._id %>"
+                                                    data-name-ar="<%= employee.name.ar %>"
+                                                    data-name-en="<%= employee.name.en %>"
+                                                    data-position-ar="<%= employee.position.ar %>"
+                                                    data-position-en="<%= employee.position.en %>"
+                                                    data-department="<%= employee.department?._id %>"
+                                                    data-email="<%= employee.email || '' %>"
+                                                    data-phone="<%= employee.phone || '' %>"
+                                                    data-tcnumber="<%= employee.tcNumber || '' %>"
+                                                    data-hiredate="<%= new Date(employee.hireDate).toISOString().split('T')[0] %>"
+                                                    data-salary="<%= employee.salary %>"
+                                                    data-isactive="<%= employee.isActive %>">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <form action="/admin/employees/<%= employee._id %>?_method=DELETE&lang=<%= lang %>" method="POST" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                        onclick="return confirm('<%= lang === 'ar' ? 'هل أنت متأكد من حذف هذا الموظف؟' : 'Are you sure you want to delete this employee?' %>')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted"><%= lang === 'ar' ? 'لا توجد موظفين' : 'No employees found' %></p>
+                                        <button class="btn btn-luxury" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                                            <i class="fas fa-plus me-2"></i>
+                                            <%= lang === 'ar' ? 'إضافة أول موظف' : 'Add First Employee' %>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal إضافة موظف -->
+    <div class="modal fade" id="addEmployeeModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-gold">
+                        <i class="fas fa-user-plus me-2"></i>
+                        <%= lang === 'ar' ? 'إضافة موظف جديد' : 'Add New Employee' %>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="/admin/employees?lang=<%= lang %>" method="POST">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الاسم بالعربية' : 'Name (Arabic)' %> *</label>
+                                    <input type="text" class="form-control" name="name[ar]" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الاسم بالإنجليزية' : 'Name (English)' %> *</label>
+                                    <input type="text" class="form-control" name="name[en]" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'المسمى الوظيفي (عربي)' : 'Position (Arabic)' %> *</label>
+                                    <input type="text" class="form-control" name="position[ar]" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'المسمى الوظيفي (إنجليزي)' : 'Position (English)' %> *</label>
+                                    <input type="text" class="form-control" name="position[en]" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الإدارة' : 'Department' %> *</label>
+                                    <select class="form-select" name="department" required>
+                                        <option value=""><%= lang === 'ar' ? 'اختر الإدارة' : 'Select Department' %></option>
+                                        <% departments.forEach(dept => { %>
+                                            <option value="<%= dept._id %>"><%= dept.name.ar %> - <%= dept.name.en %></option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'رقم الهوية' : 'TC Number' %></label>
+                                    <input type="text" class="form-control" name="tcNumber">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'البريد الإلكتروني' : 'Email' %></label>
+                                    <input type="email" class="form-control" name="email">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'رقم الهاتف' : 'Phone' %></label>
+                                    <input type="tel" class="form-control" name="phone">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'تاريخ التعيين' : 'Hire Date' %></label>
+                                    <input type="date" class="form-control" name="hireDate">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الراتب' : 'Salary' %></label>
+                                    <input type="number" class="form-control" name="salary" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="isActive" id="isActive" checked>
+                                <label class="form-check-label" for="isActive">
+                                    <%= lang === 'ar' ? 'موظف نشط' : 'Active Employee' %>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <%= t.cancel %>
+                        </button>
+                        <button type="submit" class="btn btn-luxury">
+                            <i class="fas fa-save me-2"></i>
+                            <%= t.save %>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal تعديل موظف -->
+    <div class="modal fade" id="editEmployeeModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-gold">
+                        <i class="fas fa-edit me-2"></i>
+                        <%= lang === 'ar' ? 'تعديل بيانات الموظف' : 'Edit Employee' %>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editEmployeeForm" method="POST">
+                    <input type="hidden" name="_method" value="PUT">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الاسم بالعربية' : 'Name (Arabic)' %> *</label>
+                                    <input type="text" class="form-control" name="name[ar]" id="editNameAr" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الاسم بالإنجليزية' : 'Name (English)' %> *</label>
+                                    <input type="text" class="form-control" name="name[en]" id="editNameEn" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'المسمى الوظيفي (عربي)' : 'Position (Arabic)' %> *</label>
+                                    <input type="text" class="form-control" name="position[ar]" id="editPositionAr" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'المسمى الوظيفي (إنجليزي)' : 'Position (English)' %> *</label>
+                                    <input type="text" class="form-control" name="position[en]" id="editPositionEn" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الإدارة' : 'Department' %> *</label>
+                                    <select class="form-select" name="department" id="editDepartment" required>
+                                        <option value=""><%= lang === 'ar' ? 'اختر الإدارة' : 'Select Department' %></option>
+                                        <% departments.forEach(dept => { %>
+                                            <option value="<%= dept._id %>"><%= dept.name.ar %> - <%= dept.name.en %></option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'رقم الهوية' : 'TC Number' %></label>
+                                    <input type="text" class="form-control" name="tcNumber" id="editTcNumber">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'البريد الإلكتروني' : 'Email' %></label>
+                                    <input type="email" class="form-control" name="email" id="editEmail">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'رقم الهاتف' : 'Phone' %></label>
+                                    <input type="tel" class="form-control" name="phone" id="editPhone">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'تاريخ التعيين' : 'Hire Date' %></label>
+                                    <input type="date" class="form-control" name="hireDate" id="editHireDate">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الراتب' : 'Salary' %></label>
+                                    <input type="number" class="form-control" name="salary" id="editSalary" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="isActive" id="editIsActive">
+                                <label class="form-check-label" for="editIsActive">
+                                    <%= lang === 'ar' ? 'موظف نشط' : 'Active Employee' %>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <%= t.cancel %>
+                        </button>
+                        <button type="submit" class="btn btn-luxury">
+                            <i class="fas fa-save me-2"></i>
+                            <%= t.update %>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/scripts') %>
+    
+    <script>
+        // تعديل بيانات الموظف
+        document.addEventListener('DOMContentLoaded', function() {
+            const editModal = document.getElementById('editEmployeeModal');
+            if (editModal) {
+                editModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const id = button.getAttribute('data-id');
+                    const form = document.getElementById('editEmployeeForm');
+                    
+                    form.action = `/admin/employees/${id}?lang=<%= lang %>`;
+                    document.getElementById('editNameAr').value = button.getAttribute('data-name-ar');
+                    document.getElementById('editNameEn').value = button.getAttribute('data-name-en');
+                    document.getElementById('editPositionAr').value = button.getAttribute('data-position-ar');
+                    document.getElementById('editPositionEn').value = button.getAttribute('data-position-en');
+                    document.getElementById('editDepartment').value = button.getAttribute('data-department');
+                    document.getElementById('editEmail').value = button.getAttribute('data-email');
+                    document.getElementById('editPhone').value = button.getAttribute('data-phone');
+                    document.getElementById('editTcNumber').value = button.getAttribute('data-tcnumber');
+                    document.getElementById('editHireDate').value = button.getAttribute('data-hiredate');
+                    document.getElementById('editSalary').value = button.getAttribute('data-salary');
+                    document.getElementById('editIsActive').checked = button.getAttribute('data-isactive') === 'true';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

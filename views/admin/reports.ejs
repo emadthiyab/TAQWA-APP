@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+    <%- include('../partials/head') %>
+</head>
+<body class="dashboard-bg">
+    <%- include('../partials/sidebar') %>
+    
+    <div class="main-content">
+        <%- include('../partials/navbar') %>
+        
+        <div class="container-fluid py-4">
+            <!-- رسائل النجاح/الخطأ -->
+            <% if (success) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <% if (success === 'report_updated') { %>
+                    <%= lang === 'ar' ? 'تم تحديث البلاغ بنجاح!' : 'Report updated successfully!' %>
+                <% } else if (success === 'report_deleted') { %>
+                    <%= lang === 'ar' ? 'تم حذف البلاغ بنجاح!' : 'Report deleted successfully!' %>
+                <% } %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+            
+            <% if (error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <% if (error === 'report_update_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في تحديث البلاغ' : 'Failed to update report' %>
+                <% } else if (error === 'report_delete_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في حذف البلاغ' : 'Failed to delete report' %>
+                <% } %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="text-dark mb-0">
+                    <i class="fas fa-flag text-gold me-2"></i>
+                    <%= title %>
+                </h4>
+            </div>
+
+            <!-- جدول البلاغات -->
+            <div class="luxury-card">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th><%= lang === 'ar' ? 'عنوان البلاغ' : 'Report Title' %></th>
+                                <th><%= lang === 'ar' ? 'النوع' : 'Type' %></th>
+                                <th><%= lang === 'ar' ? 'الإدارة' : 'Department' %></th>
+                                <th><%= lang === 'ar' ? 'الأولوية' : 'Priority' %></th>
+                                <th><%= lang === 'ar' ? 'المبلغ' : 'Reporter' %></th>
+                                <th><%= lang === 'ar' ? 'الحالة' : 'Status' %></th>
+                                <th><%= lang === 'ar' ? 'التاريخ' : 'Date' %></th>
+                                <th><%= lang === 'ar' ? 'الإجراءات' : 'Actions' %></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (reports && reports.length > 0) { %>
+                                <% reports.forEach(report => { %>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong><%= report.title.ar %></strong>
+                                            <br>
+                                            <small class="text-muted"><%= report.title.en %></small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <% const typeLabels = {
+                                            'complaint': lang === 'ar' ? 'شكوى' : 'Complaint',
+                                            'suggestion': lang === 'ar' ? 'اقتراح' : 'Suggestion',
+                                            'incident': lang === 'ar' ? 'حادث' : 'Incident',
+                                            'maintenance': lang === 'ar' ? 'صيانة' : 'Maintenance',
+                                            'other': lang === 'ar' ? 'أخرى' : 'Other'
+                                        } %>
+                                        <span class="badge bg-secondary">
+                                            <%= typeLabels[report.type] %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <% if (report.department) { %>
+                                            <span class="text-dark"><%= report.department.name.ar %></span>
+                                        <% } else { %>
+                                            <span class="text-muted">-</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% const priorityColors = {
+                                            'low': 'success',
+                                            'medium': 'warning', 
+                                            'high': 'danger',
+                                            'critical': 'dark'
+                                        } %>
+                                        <% const priorityLabels = {
+                                            'low': lang === 'ar' ? 'منخفض' : 'Low',
+                                            'medium': lang === 'ar' ? 'متوسط' : 'Medium',
+                                            'high': lang === 'ar' ? 'مرتفع' : 'High',
+                                            'critical': lang === 'ar' ? 'حرج' : 'Critical'
+                                        } %>
+                                        <span class="badge bg-<%= priorityColors[report.priority] %>">
+                                            <%= priorityLabels[report.priority] %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small><%= report.createdBy?.name || 'مستخدم' %></small>
+                                    </td>
+                                    <td>
+                                        <% const statusColors = {
+                                            'pending': 'warning',
+                                            'in-progress': 'info',
+                                            'resolved': 'success',
+                                            'cancelled': 'danger'
+                                        } %>
+                                        <% const statusLabels = {
+                                            'pending': lang === 'ar' ? 'معلق' : 'Pending',
+                                            'in-progress': lang === 'ar' ? 'قيد المعالجة' : 'In Progress',
+                                            'resolved': lang === 'ar' ? 'تم الحل' : 'Resolved',
+                                            'cancelled': lang === 'ar' ? 'ملغي' : 'Cancelled'
+                                        } %>
+                                        <span class="badge bg-<%= statusColors[report.status] %>">
+                                            <%= statusLabels[report.status] %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small><%= new Date(report.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US') %></small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-outline-luxury" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editReportModal"
+                                                    data-id="<%= report._id %>"
+                                                    data-status="<%= report.status %>"
+                                                    data-notes="<%= report.notes && report.notes.length > 0 ? report.notes[report.notes.length - 1].content : '' %>">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <form action="/admin/reports/<%= report._id %>?_method=DELETE&lang=<%= lang %>" method="POST" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                        onclick="return confirm('<%= lang === 'ar' ? 'هل أنت متأكد من حذف هذا البلاغ؟' : 'Are you sure you want to delete this report?' %>')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <i class="fas fa-flag fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted"><%= lang === 'ar' ? 'لا توجد بلاغات' : 'No reports found' %></p>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal تعديل البلاغ -->
+    <div class="modal fade" id="editReportModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-gold">
+                        <i class="fas fa-edit me-2"></i>
+                        <%= lang === 'ar' ? 'تحديث حالة البلاغ' : 'Update Report Status' %>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editReportForm" method="POST">
+                    <input type="hidden" name="_method" value="PUT">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'حالة البلاغ' : 'Report Status' %></label>
+                                    <select class="form-select" name="status" id="editStatus">
+                                        <option value="pending"><%= lang === 'ar' ? 'معلق' : 'Pending' %></option>
+                                        <option value="in-progress"><%= lang === 'ar' ? 'قيد المعالجة' : 'In Progress' %></option>
+                                        <option value="resolved"><%= lang === 'ar' ? 'تم الحل' : 'Resolved' %></option>
+                                        <option value="cancelled"><%= lang === 'ar' ? 'ملغي' : 'Cancelled' %></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><%= lang === 'ar' ? 'ملاحظات' : 'Notes' %></label>
+                            <textarea class="form-control" name="notes" id="editNotes" rows="4" placeholder="<%= lang === 'ar' ? 'أضف ملاحظات حول حالة البلاغ...' : 'Add notes about the report status...' %>"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <%= t.cancel %>
+                        </button>
+                        <button type="submit" class="btn btn-luxury">
+                            <i class="fas fa-save me-2"></i>
+                            <%= t.update %>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/scripts') %>
+    
+    <script>
+        // تعديل حالة البلاغ
+        document.addEventListener('DOMContentLoaded', function() {
+            const editModal = document.getElementById('editReportModal');
+            if (editModal) {
+                editModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const id = button.getAttribute('data-id');
+                    const form = document.getElementById('editReportForm');
+                    
+                    form.action = `/admin/reports/${id}?lang=<%= lang %>`;
+                    document.getElementById('editStatus').value = button.getAttribute('data-status');
+                    document.getElementById('editNotes').value = button.getAttribute('data-notes');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

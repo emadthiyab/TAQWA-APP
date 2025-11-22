@@ -1,0 +1,71 @@
+<!-- الشريط الجانبي -->
+<div class="sidebar">
+    <div class="sidebar-header position-relative">
+        <button class="btn btn-link text-light position-absolute top-0 end-0 mt-2 me-2 d-lg-none sidebar-close-btn">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="sidebar-logo">
+            <img src="/images/logo.png" alt="<%= t.hotelName %>"
+                onerror="this.style.display='none'; this.parentNode.innerHTML='<i class=\'fas fa-hotel text-gold fa-2x\'></i>';">
+        </div>
+        <h5 class="text-gold mb-0">
+            <%= t.hotelName %>
+        </h5>
+        <small class="text-light">
+            <%= t.adminDashboard %>
+        </small>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="/admin/dashboard?lang=<%= lang %>" class="nav-link">
+            <i class="nav-icon fas fa-tachometer-alt"></i>
+            <%= t.dashboard %>
+        </a>
+        <a href="/admin/departments?lang=<%= lang %>" class="nav-link">
+            <i class="nav-icon fas fa-sitemap"></i>
+            <%= t.departments %>
+        </a>
+        <a href="/admin/employees?lang=<%= lang %>" class="nav-link">
+            <i class="nav-icon fas fa-users"></i>
+            <%= t.employees %>
+        </a>
+        <a href="/admin/evaluation/criteria?lang=<%= lang %>" class="nav-link">
+    <span class="nav-icon"><i class="fas fa-clipboard-check"></i></span>
+    <%= lang === 'ar' ? 'معايير التقييم' : 'Evaluation Criteria' %>
+	</a>
+	<a href="/admin/evaluation/evaluations?lang=<%= lang %>" class="nav-link">
+    <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+    <%= lang === 'ar' ? 'تقييمات الأداء' : 'Performance Evaluations' %>
+	</a>
+	<a href="/admin/kpis?lang=<%= lang %>" class="nav-link">
+            <i class="nav-icon fas fa-chart-line"></i>
+            <%= t.kpis %>
+        </a>
+        <a href="/admin/projects?lang=<%= lang %>" class="nav-link">
+            <i class="nav-icon fas fa-tasks"></i>
+            <%= t.projects %>
+        </a>
+        <a href="/admin/reports?lang=<%= lang %>" class="nav-link">
+            <i class="nav-icon fas fa-flag"></i>
+            <%= t.reports %>
+        </a>
+        <a href="/admin/analytics?lang=<%= lang %>" class="nav-link">
+            <i class="nav-icon fas fa-chart-pie"></i>
+            <%= t.analytics || (lang==='ar' ? 'التحليلات' : 'Analytics' ) %>
+        </a>
+        <a href="/admin/settings?lang=<%= lang %>" class="nav-link">
+            <i class="nav-icon fas fa-cogs"></i>
+            <%= t.settings || (lang==='ar' ? 'الإعدادات' : 'Settings' ) %>
+        </a>
+        <a href="/admin/import?lang=<%= lang %>" class="nav-link">
+            <i class="nav-icon fas fa-file-import"></i>
+            استيراد البيانات
+        </a>
+        <form action="/logout" method="POST" class="nav-link">
+            <button type="submit" class="btn btn-link nav-link p-0 border-0 text-start w-100">
+                <i class="nav-icon fas fa-sign-out-alt"></i>
+                <%= t.logout %>
+            </button>
+        </form>
+    </nav>
+</div>
+<div class="overlay"></div>

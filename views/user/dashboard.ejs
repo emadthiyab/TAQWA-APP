@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= t.userDashboard %> - <%= t.hotelName %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <%- include('../partials/styles') %>
+</head>
+<body class="dashboard-bg">
+    <!-- زر القائمة للموبايل -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Overlay للجوال -->
+    <div class="overlay" id="overlay"></div>
+    
+    <!-- الشريط الجانبي -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <img src="/images/logo.png" alt="<%= t.hotelName %>" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iNDAiIGZpbGw9IiNEMEFGMzciLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjMDAwMDAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptLTIgMTVsLTUtNSA0LjQ5LTQuNDlMMTAgMTEuNTFsNi4wMS02LjAxIDEuNDIgMS40MkwxMCAxN3oiLz4KPC9zdmc+Cjwvc3ZnPgo='">
+            </div>
+            <h5 class="text-gold mb-1"><%= t.hotelName %></h5>
+            <small class="text-light"><%= t.userDashboard %></small>
+        </div>
+        
+        <nav class="nav flex-column">
+            <!-- تبويبات رئيسية -->
+            <a href="/user/dashboard?lang=<%= lang %>" class="nav-link active">
+                <span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span>
+                <%= t.dashboard %>
+            </a>
+            
+            <!-- تبويبات الأداء -->
+            <div class="nav-section-header">
+                <small class="text-muted px-3"><%= t.performance %></small>
+            </div>
+            <a href="/user/kpis?lang=<%= lang %>" class="nav-link">
+                <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+                <%= t.myKPIs %>
+            </a>
+            <a href="/user/projects?lang=<%= lang %>" class="nav-link">
+                <span class="nav-icon"><i class="fas fa-tasks"></i></span>
+                <%= t.projectsTracking %>
+            </a>
+            <a href="/user/performance?lang=<%= lang %>" class="nav-link">
+                <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
+                <%= t.myPerformance %>
+            </a>
+            
+            <!-- تبويبات الإدارة -->
+            <div class="nav-section-header">
+                <small class="text-muted px-3"><%= t.management %></small>
+            </div>
+            <a href="/user/employees?lang=<%= lang %>" class="nav-link">
+                <span class="nav-icon"><i class="fas fa-users"></i></span>
+                <%= t.employeesTracking %>
+            </a>
+            <a href="/user/reports?lang=<%= lang %>" class="nav-link">
+                <span class="nav-icon"><i class="fas fa-flag"></i></span>
+                <%= t.reportsTracking %>
+            </a>
+            <a href="/user/data?lang=<%= lang %>" class="nav-link">
+                <span class="nav-icon"><i class="fas fa-edit"></i></span>
+                <%= t.enterData %>
+            </a>
+        </nav>
+        
+        <!-- قسم تسجيل الخروج -->
+        <div class="mt-auto p-3 border-top">
+            <div class="d-flex align-items-center mb-3">
+                <div class="flex-shrink-0">
+                    <div class="user-avatar bg-gold rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fas fa-user text-dark"></i>
+                    </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h6 class="mb-0 text-light"><%= user.name %></h6>
+                    <small class="text-muted"><%= user.role %></small>
+                </div>
+            </div>
+            
+            <form action="/logout" method="POST" class="d-grid">
+                <input type="hidden" name="lang" value="<%= lang %>">
+                <button type="submit" class="btn btn-outline-luxury">
+                    <i class="fas fa-sign-out-alt me-2"></i>
+                    <%= t.logout %>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- المحتوى الرئيسي -->
+    <div class="dashboard-content">
+        <!-- الشريط العلوي -->
+        <nav class="navbar navbar-luxury">
+            <div class="navbar-content">
+                <div class="navbar-left">
+                    <h4 class="mb-0 text-dark">
+                        <i class="fas fa-tachometer-alt text-gold me-2"></i>
+                        <%= t.userDashboard %>
+                    </h4>
+                </div>
+                
+                <div class="navbar-right">
+                    <div class="language-menu">
+                        <a href="?lang=<%= lang === 'ar' ? 'en' : 'ar' %>" class="btn btn-lang">
+                            <i class="fas fa-globe me-2"></i>
+                            <%= lang === 'ar' ? 'English' : 'العربية' %>
+                        </a>
+                    </div>
+                    
+                    <div class="user-menu">
+                        <span class="text-dark me-3"><%= user.name %></span>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-luxury btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1"></i>
+                                <%= user.role %>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-<%= isRTL ? 'start' : 'end' %>">
+                                <li>
+                                    <a class="dropdown-item" href="/user/profile?lang=<%= lang %>">
+                                        <i class="fas fa-user me-2"></i>
+                                        <%= t.profile %>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/logout" method="POST" class="d-inline">
+                                        <input type="hidden" name="lang" value="<%= lang %>">
+                                        <button type="submit" class="dropdown-item-btn text-danger">
+                                            <i class="fas fa-sign-out-alt me-2"></i>
+                                            <%= t.logout %>
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- محتوى لوحة التحكم -->
+        <div class="content-wrapper">
+            <!-- رأس الترحيب -->
+            <div class="dashboard-header mb-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="welcome-message">
+                            <%= t.welcomeUser %>, <%= user.name %>
+                        </h1>
+                        <p class="sub-message">
+                            <%= lang === 'ar' ? 'نظرة عامة على أدائك ومهامك' : 'Overview of your performance and tasks' %> - 
+                            <span id="current-date"></span>
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-<%= isRTL ? 'start' : 'end' %>">
+                        <div class="bg-gold text-dark rounded p-3">
+                            <h5 class="mb-1"><i class="fas fa-briefcase me-2"></i><%= user.role %></h5>
+                            <small><i class="fas fa-building me-1"></i><%= user.department %></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- شبكة الميزات -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                    <a href="/user/kpis?lang=<%= lang %>" class="text-decoration-none">
+                        <div class="user-feature-card">
+                            <div class="user-feature-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h5 class="text-dark mb-2"><%= t.myKPIs %></h5>
+                            <p class="text-muted small mb-0">
+                                <%= lang === 'ar' ? 'متابعة مؤشرات الأداء الشخصية' : 'Track your personal performance indicators' %>
+                            </p>
+                            <div class="mt-3">
+                                <span class="badge achievement-badge">
+                                    <% if (userKPIs && userKPIs.length > 0) { %>
+                                        <%= userKPIs.length %> <%= t.kpis %>
+                                    <% } else { %>
+                                        0 <%= t.kpis %>
+                                    <% } %>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                    <a href="/user/projects?lang=<%= lang %>" class="text-decoration-none">
+                        <div class="user-feature-card">
+                            <div class="user-feature-icon">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <h5 class="text-dark mb-2"><%= t.projectsTracking %></h5>
+                            <p class="text-muted small mb-0">
+                                <%= lang === 'ar' ? 'متابعة المشاريع المكلف بها' : 'Follow up on assigned projects' %>
+                            </p>
+                            <div class="mt-3">
+                                <span class="badge achievement-badge">
+                                    <% if (userProjects && userProjects.length > 0) { %>
+                                        <%= userProjects.length %> <%= t.projects %>
+                                    <% } else { %>
+                                        0 <%= t.projects %>
+                                    <% } %>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                    <a href="/user/performance?lang=<%= lang %>" class="text-decoration-none">
+                        <div class="user-feature-card">
+                            <div class="user-feature-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h5 class="text-dark mb-2"><%= t.myPerformance %></h5>
+                            <p class="text-muted small mb-0">
+                                <%= lang === 'ar' ? 'عرض تقارير الأداء والتقييمات' : 'View performance reports and evaluations' %>
+                            </p>
+                            <div class="mt-3">
+                                <span class="badge achievement-badge">
+                                    <i class="fas fa-trend-up me-1"></i> 92%
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                    <a href="/user/reports?lang=<%= lang %>" class="text-decoration-none">
+                        <div class="user-feature-card">
+                            <div class="user-feature-icon">
+                                <i class="fas fa-flag"></i>
+                            </div>
+                            <h5 class="text-dark mb-2"><%= t.reportsTracking %></h5>
+                            <p class="text-muted small mb-0">
+                                <%= lang === 'ar' ? 'تسجيل ومتابعة البلاغات' : 'Register and follow up on reports' %>
+                            </p>
+                            <div class="mt-3">
+                                <span class="badge achievement-badge">
+                                    <% if (userReports && userReports.length > 0) { %>
+                                        <%= userReports.length %> <%= t.reports %>
+                                    <% } else { %>
+                                        0 <%= t.reports %>
+                                    <% } %>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- الأنشطة الحديثة -->
+            <div class="row g-4">
+                <!-- مؤشرات الأداء -->
+                <div class="col-xl-4 col-lg-6">
+                    <div class="luxury-card h-100">
+                        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-line text-gold me-2"></i>
+                                <%= t.myKPIs %>
+                            </h5>
+                            <a href="/user/kpis?lang=<%= lang %>" class="btn btn-outline-luxury btn-sm">
+                                <%= t.viewAll %>
+                            </a>
+                        </div>
+                        <div class="p-3">
+                            <% if (userKPIs && userKPIs.length > 0) { %>
+                                <% userKPIs.slice(0, 5).forEach(kpi => { %>
+                                    <div class="activity-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1"><%= kpi.name[lang] || kpi.name.ar %></h6>
+                                                <div class="kpi-progress mb-2">
+                                                    <div class="progress-bar" style="width: <%= kpi.progress || 0 %>%;"></div>
+                                                </div>
+                                                <small class="text-muted">
+                                                    <%= kpi.target %> <%= kpi.unit || '' %>
+                                                </small>
+                                            </div>
+                                            <span class="badge achievement-badge">
+                                                <%= kpi.progress || 0 %>%
+                                            </span>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <div class="text-center py-4">
+                                    <i class="fas fa-chart-line fa-2x text-muted mb-3"></i>
+                                    <p class="text-muted"><%= lang === 'ar' ? 'لا توجد مؤشرات أداء مخصصة' : 'No assigned performance indicators' %></p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- المشاريع -->
+                <div class="col-xl-4 col-lg-6">
+                    <div class="luxury-card h-100">
+                        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-tasks text-gold me-2"></i>
+                                <%= t.projectsTracking %>
+                            </h5>
+                            <a href="/user/projects?lang=<%= lang %>" class="btn btn-outline-luxury btn-sm">
+                                <%= t.viewAll %>
+                            </a>
+                        </div>
+                        <div class="p-3">
+                            <% if (userProjects && userProjects.length > 0) { %>
+                                <% userProjects.slice(0, 5).forEach(project => { %>
+                                    <div class="activity-item">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1"><%= project.name[lang] || project.name.ar %></h6>
+                                                <p class="mb-1 text-muted small"><%= project.description ? (project.description.substring(0, 60) + (project.description.length > 60 ? '...' : '')) : '' %></p>
+                                                <span class="badge status-<%= project.status || 'pending' %>">
+                                                    <%= project.status === 'active' ? t.active : project.status === 'completed' ? t.completed : t.pending %>
+                                                </span>
+                                            </div>
+                                            <small class="text-muted">
+                                                <%= new Date(project.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US') %>
+                                            </small>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <div class="text-center py-4">
+                                    <i class="fas fa-tasks fa-2x text-muted mb-3"></i>
+                                    <p class="text-muted"><%= lang === 'ar' ? 'لا توجد مشاريع مخصصة' : 'No assigned projects' %></p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- البلاغات الحديثة -->
+                <div class="col-xl-4 col-lg-6">
+                    <div class="luxury-card h-100">
+                        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-flag text-gold me-2"></i>
+                                <%= t.recentActivities %> - <%= t.reports %>
+                            </h5>
+                            <a href="/user/reports?lang=<%= lang %>" class="btn btn-outline-luxury btn-sm">
+                                <%= t.viewAll %>
+                            </a>
+                        </div>
+                        <div class="p-3">
+                            <% if (userReports && userReports.length > 0) { %>
+                                <% userReports.slice(0, 5).forEach(report => { %>
+                                    <div class="activity-item">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1"><%= report.title[lang] || report.title.ar %></h6>
+                                                <p class="mb-1 text-muted small"><%= report.description ? (report.description.substring(0, 60) + (report.description.length > 60 ? '...' : '')) : '' %></p>
+                                                <span class="badge status-<%= report.status || 'pending' %>">
+                                                    <%= report.status === 'resolved' ? t.completed : report.status === 'in-progress' ? t.inProgress : t.pending %>
+                                                </span>
+                                            </div>
+                                            <small class="text-muted">
+                                                <%= new Date(report.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US') %>
+                                            </small>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <div class="text-center py-4">
+                                    <i class="fas fa-flag fa-2x text-muted mb-3"></i>
+                                    <p class="text-muted"><%= lang === 'ar' ? 'لا توجد بلاغات حديثة' : 'No recent reports' %></p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ملخص الأداء -->
+            <div class="row g-4 mt-2">
+                <div class="col-12">
+                    <div class="luxury-card">
+                        <div class="p-3 border-bottom">
+                            <h5 class="mb-0">
+                                <i class="fas fa-award text-gold me-2"></i>
+                                <%= lang === 'ar' ? 'ملخص الأداء الشهري' : 'Monthly Performance Summary' %>
+                            </h5>
+                        </div>
+                        <div class="p-4">
+                            <div class="row text-center">
+                                <div class="col-md-2 col-4 mb-3">
+                                    <div class="bg-light rounded p-3">
+                                        <h3 class="text-gold mb-1">92%</h3>
+                                        <small class="text-muted"><%= lang === 'ar' ? 'الحضور' : 'Attendance' %></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-4 mb-3">
+                                    <div class="bg-light rounded p-3">
+                                        <h3 class="text-gold mb-1">88%</h3>
+                                        <small class="text-muted"><%= lang === 'ar' ? 'إنجاز المهام' : 'Task Completion' %></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-4 mb-3">
+                                    <div class="bg-light rounded p-3">
+                                        <h3 class="text-gold mb-1">95%</h3>
+                                        <small class="text-muted"><%= lang === 'ar' ? 'جودة العمل' : 'Work Quality' %></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-4 mb-3">
+                                    <div class="bg-light rounded p-3">
+                                        <h3 class="text-gold mb-1">90%</h3>
+                                        <small class="text-muted"><%= lang === 'ar' ? 'التعاون' : 'Collaboration' %></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-4 mb-3">
+                                    <div class="bg-light rounded p-3">
+                                        <h3 class="text-gold mb-1">4.8</h3>
+                                        <small class="text-muted"><%= lang === 'ar' ? 'التقييم' : 'Rating' %></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-4 mb-3">
+                                    <div class="bg-light rounded p-3">
+                                        <h3 class="text-gold mb-1">15</h3>
+                                        <small class="text-muted"><%= lang === 'ar' ? 'المشاريع' : 'Projects' %></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // تبديل القائمة الجانبية
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        
+        function toggleSidebar() {
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+        
+        mobileMenuBtn.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+        
+        // إغلاق القائمة عند النقر على رابط (للجوال)
+        if (window.innerWidth <= 768) {
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', toggleSidebar);
+            });
+        }
+        
+        // التعامل مع تغيير حجم النافذة
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+            }
+        });
+        
+        // تحديث التاريخ الحالي
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                timeZone: 'Asia/Riyadh'
+            };
+            const dateString = now.toLocaleDateString('<%= lang === 'ar' ? 'ar-SA' : 'en-US' %>', options);
+            document.getElementById('current-date').textContent = dateString;
+        });
+        
+        // تهيئة القوائم المنسدلة
+        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'))
+        var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+            return new bootstrap.Dropdown(dropdownToggleEl)
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+    <%- include('../partials/head') %>
+    <style>
+        .criteria-section {
+            border-left: 4px solid var(--gold);
+            padding-left: 1rem;
+            margin-bottom: 2rem;
+        }
+        .level-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .sub-criteria-item {
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="dashboard-bg">
+    <%- include('../partials/sidebar') %>
+    
+    <div class="main-content">
+        <%- include('../partials/navbar', { title: title }) %>
+        
+        <div class="container-fluid py-4">
+            <!-- رسائل النجاح/الخطأ -->
+            <% if (success) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <% if (success === 'criteria_created') { %>
+                    <%= lang === 'ar' ? 'تم إنشاء معيار التقييم بنجاح!' : 'Evaluation criteria created successfully!' %>
+                <% } else if (success === 'criteria_updated') { %>
+                    <%= lang === 'ar' ? 'تم تحديث معيار التقييم بنجاح!' : 'Evaluation criteria updated successfully!' %>
+                <% } else if (success === 'criteria_deleted') { %>
+                    <%= lang === 'ar' ? 'تم حذف معيار التقييم بنجاح!' : 'Evaluation criteria deleted successfully!' %>
+                <% } %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+            
+            <% if (error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <% if (error === 'criteria_create_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في إنشاء معيار التقييم' : 'Failed to create evaluation criteria' %>
+                <% } else if (error === 'criteria_update_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في تحديث معيار التقييم' : 'Failed to update evaluation criteria' %>
+                <% } else if (error === 'criteria_delete_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في حذف معيار التقييم' : 'Failed to delete evaluation criteria' %>
+                <% } %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <!-- نموذج إضافة معيار جديد -->
+                    <div class="luxury-card p-4 mb-4">
+                        <h5 class="text-gold mb-3">
+                            <i class="fas fa-plus-circle me-2"></i>
+                            <%= lang === 'ar' ? 'إضافة معيار تقييم جديد' : 'Add New Evaluation Criteria' %>
+                        </h5>
+                        
+                        <form id="criteriaForm" action="/admin/evaluation/criteria?lang=<%= lang %>" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'اسم المعيار (عربي)' : 'Criteria Name (Arabic)' %></label>
+                                <input type="text" class="form-control" name="name_ar" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'اسم المعيار (إنجليزي)' : 'Criteria Name (English)' %></label>
+                                <input type="text" class="form-control" name="name_en" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'الوصف (عربي)' : 'Description (Arabic)' %></label>
+                                <textarea class="form-control" name="description_ar" rows="2"></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><%= lang === 'ar' ? 'الوصف (إنجليزي)' : 'Description (English)' %></label>
+                                <textarea class="form-control" name="description_en" rows="2"></textarea>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الفئة' : 'Category' %></label>
+                                    <select class="form-select" name="category" required>
+                                        <option value=""><%= lang === 'ar' ? 'اختر الفئة' : 'Select Category' %></option>
+                                        <% categories.forEach(cat => { %>
+                                        <option value="<%= cat.value %>">
+                                            <%= lang === 'ar' ? cat.name.ar : cat.name.en %>
+                                        </option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'القسم' : 'Section' %></label>
+                                    <select class="form-select" name="section" required>
+                                        <option value=""><%= lang === 'ar' ? 'اختر القسم' : 'Select Section' %></option>
+                                        <% sections.forEach(sec => { %>
+                                        <option value="<%= sec.value %>">
+                                            <%= lang === 'ar' ? sec.name.ar : sec.name.en %>
+                                        </option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الدرجة القصوى' : 'Max Score' %></label>
+                                    <input type="number" class="form-control" name="maxScore" value="5" min="1" max="10" required>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الوزن' : 'Weight' %></label>
+                                    <input type="number" class="form-control" name="weight" value="0" step="0.1" min="0" max="100">
+                                </div>
+                            </div>
+                            
+                            <!-- مستويات الأداء -->
+                            <div class="criteria-section">
+                                <h6 class="text-dark mb-3">
+                                    <i class="fas fa-chart-bar me-2"></i>
+                                    <%= lang === 'ar' ? 'مستويات الأداء' : 'Performance Levels' %>
+                                </h6>
+                                
+                                <% for (let i = 1; i <= 5; i++) { %>
+                                <div class="level-item">
+                                    <h6 class="mb-2"><%= lang === 'ar' ? `مستوى ${i}` : `Level ${i}` %></h6>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-2">
+                                            <input type="text" class="form-control" name="level_<%= i %>_name_ar" 
+                                                placeholder="<%= lang === 'ar' ? 'الاسم عربي' : 'Name Arabic' %>">
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <input type="text" class="form-control" name="level_<%= i %>_name_en" 
+                                                placeholder="<%= lang === 'ar' ? 'الاسم إنجليزي' : 'Name English' %>">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-2">
+                                            <textarea class="form-control" name="level_<%= i %>_desc_ar" rows="2" 
+                                                placeholder="<%= lang === 'ar' ? 'الوصف عربي' : 'Description Arabic' %>"></textarea>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <textarea class="form-control" name="level_<%= i %>_desc_en" rows="2" 
+                                                placeholder="<%= lang === 'ar' ? 'الوصف إنجليزي' : 'Description English' %>"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-2">
+                                            <input type="number" class="form-control" name="level_<%= i %>_min" 
+                                                placeholder="<%= lang === 'ar' ? 'الحد الأدنى' : 'Min Score' %>" step="0.1">
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <input type="number" class="form-control" name="level_<%= i %>_max" 
+                                                placeholder="<%= lang === 'ar' ? 'الحد الأقصى' : 'Max Score' %>" step="0.1">
+                                        </div>
+                                    </div>
+                                </div>
+                                <% } %>
+                            </div>
+                            
+                            <!-- المعايير الفرعية -->
+                            <div class="criteria-section">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="text-dark mb-0">
+                                        <i class="fas fa-list me-2"></i>
+                                        <%= lang === 'ar' ? 'المعايير الفرعية' : 'Sub Criteria' %>
+                                    </h6>
+                                    <button type="button" class="btn btn-outline-luxury btn-sm" id="addSubCriteria">
+                                        <i class="fas fa-plus me-1"></i>
+                                        <%= lang === 'ar' ? 'إضافة' : 'Add' %>
+                                    </button>
+                                </div>
+                                
+                                <div id="subCriteriaContainer">
+                                    <!-- سيتم إضافة المعايير الفرعية هنا عبر JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-luxury">
+                                    <i class="fas fa-save me-2"></i>
+                                    <%= lang === 'ar' ? 'حفظ المعيار' : 'Save Criteria' %>
+                                </button>
+                                <button type="reset" class="btn btn-outline-secondary ms-2">
+                                    <i class="fas fa-undo me-2"></i>
+                                    <%= lang === 'ar' ? 'إعادة تعيين' : 'Reset' %>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="col-lg-8">
+                    <!-- قائمة معايير التقييم -->
+                    <div class="luxury-card p-4">
+                        <h5 class="text-gold mb-3">
+                            <i class="fas fa-list me-2"></i>
+                            <%= lang === 'ar' ? 'معايير التقييم الحالية' : 'Current Evaluation Criteria' %>
+                        </h5>
+                        
+                        <% if (criteria.length > 0) { %>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th><%= lang === 'ar' ? 'اسم المعيار' : 'Criteria Name' %></th>
+                                            <th><%= lang === 'ar' ? 'الفئة' : 'Category' %></th>
+                                            <th><%= lang === 'ar' ? 'القسم' : 'Section' %></th>
+                                            <th><%= lang === 'ar' ? 'الدرجة القصوى' : 'Max Score' %></th>
+                                            <th><%= lang === 'ar' ? 'الإجراءات' : 'Actions' %></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% criteria.forEach(item => { %>
+                                        <tr>
+                                            <td>
+                                                <strong><%= lang === 'ar' ? item.name.ar : item.name.en %></strong>
+                                                <% if (item.description && item.description.ar) { %>
+                                                <br><small class="text-muted"><%= lang === 'ar' ? item.description.ar : item.description.en %></small>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark">
+                                                    <%= lang === 'ar' ? item.categoryName.ar : item.categoryName.en %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <%
+                                                let sectionName = '';
+                                                sections.forEach(sec => {
+                                                    if (sec.value === item.section) {
+                                                        sectionName = lang === 'ar' ? sec.name.ar : sec.name.en;
+                                                    }
+                                                });
+                                                %>
+                                                <span class="badge bg-info"><%= sectionName %></span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-gold text-dark"><%= item.maxScore %></span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button type="button" class="btn btn-outline-primary" 
+                                                        onclick="editCriteria('<%= item._id %>')">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <form action="/admin/evaluation/criteria/<%= item._id %>?lang=<%= lang %>" 
+                                                        method="POST" class="d-inline" 
+                                                        onsubmit="return confirm('<%= lang === 'ar' ? 'هل أنت متأكد من الحذف؟' : 'Are you sure you want to delete?' %>')">
+                                                        <input type="hidden" name="_method" value="DELETE">
+                                                        <button type="submit" class="btn btn-outline-danger">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center py-4">
+                                <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">
+                                    <%= lang === 'ar' ? 'لا توجد معايير تقييم مضافة حالياً' : 'No evaluation criteria added yet' %>
+                                </p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/scripts') %>
+    
+    <script>
+        let subCriteriaCount = 0;
+        
+        // إضافة معيار فرعي جديد
+        document.getElementById('addSubCriteria').addEventListener('click', function() {
+            const container = document.getElementById('subCriteriaContainer');
+            const index = subCriteriaCount++;
+            
+            const subCriteriaHTML = `
+                <div class="sub-criteria-item" id="subCriteria_${index}">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0"><%= lang === 'ar' ? 'معيار فرعي' : 'Sub Criteria' %> ${index + 1}</h6>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSubCriteria(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <input type="text" class="form-control" name="sub_${index}_name_ar" 
+                                placeholder="<%= lang === 'ar' ? 'اسم المعيار الفرعي عربي' : 'Sub Criteria Name Arabic' %>" required>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <input type="text" class="form-control" name="sub_${index}_name_en" 
+                                placeholder="<%= lang === 'ar' ? 'اسم المعيار الفرعي إنجليزي' : 'Sub Criteria Name English' %>" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <textarea class="form-control" name="sub_${index}_desc_ar" rows="2" 
+                                placeholder="<%= lang === 'ar' ? 'الوصف عربي' : 'Description Arabic' %>"></textarea>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <textarea class="form-control" name="sub_${index}_desc_en" rows="2" 
+                                placeholder="<%= lang === 'ar' ? 'الوصف إنجليزي' : 'Description English' %>"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input type="number" class="form-control" name="sub_${index}_weight" 
+                                placeholder="<%= lang === 'ar' ? 'الوزن' : 'Weight' %>" step="0.1" min="0" max="100">
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', subCriteriaHTML);
+        });
+        
+        // حذف معيار فرعي
+        function removeSubCriteria(index) {
+            const element = document.getElementById(`subCriteria_${index}`);
+            if (element) {
+                element.remove();
+            }
+        }
+        
+        // تعديل معيار (سيتم تطويره لاحقاً)
+        function editCriteria(id) {
+            alert('<%= lang === 'ar' ? 'ميزة التعديل قيد التطوير' : 'Edit feature under development' %>');
+            // سيتم إضافة منطق التعديل لاحقاً
+        }
+    </script>
+</body>
+</html>

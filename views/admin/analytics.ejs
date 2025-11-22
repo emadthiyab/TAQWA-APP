@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+    <%- include('../partials/head') %>
+</head>
+<body class="dashboard-bg">
+    <%- include('../partials/sidebar') %>
+    
+    <div class="main-content">
+        <%- include('../partials/navbar') %>
+        
+        <div class="container-fluid py-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="text-dark mb-0">
+                    <i class="fas fa-chart-bar text-gold me-2"></i>
+                    <%= title %>
+                </h4>
+            </div>
+
+            <!-- إحصائيات سريعة -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="stat-number">85%</h3>
+                                <p class="text-muted mb-0"><%= lang === 'ar' ? 'معدل الإشغال' : 'Occupancy Rate' %></p>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-bed"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="stat-number">92%</h3>
+                                <p class="text-muted mb-0"><%= lang === 'ar' ? 'رضا العملاء' : 'Customer Satisfaction' %></p>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-smile"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="stat-number">78%</h3>
+                                <p class="text-muted mb-0"><%= lang === 'ar' ? 'كفاءة الموظفين' : 'Employee Efficiency' %></p>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="stat-number">65%</h3>
+                                <p class="text-muted mb-0"><%= lang === 'ar' ? 'إنجاز المشاريع' : 'Project Completion' %></p>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الرسوم البيانية -->
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="luxury-card p-4 mb-4">
+                        <h5 class="text-gold mb-4">
+                            <i class="fas fa-chart-line me-2"></i>
+                            <%= lang === 'ar' ? 'أداء الإدارات' : 'Department Performance' %>
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="departmentChart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="luxury-card p-4 mb-4">
+                        <h5 class="text-gold mb-4">
+                            <i class="fas fa-trending-up me-2"></i>
+                            <%= lang === 'ar' ? 'تقدم المؤشرات' : 'KPI Progress' %>
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="kpiChart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- جداول البيانات -->
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="luxury-card p-4">
+                        <h5 class="text-gold mb-4">
+                            <i class="fas fa-trophy me-2"></i>
+                            <%= lang === 'ar' ? 'أفضل الإدارات أداءً' : 'Top Performing Departments' %>
+                        </h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th><%= lang === 'ar' ? 'الإدارة' : 'Department' %></th>
+                                        <th><%= lang === 'ar' ? 'الأداء' : 'Performance' %></th>
+                                        <th><%= lang === 'ar' ? 'الحالة' : 'Status' %></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><%= lang === 'ar' ? 'خدمات الغرف' : 'Housekeeping' %></td>
+                                        <td>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar" style="width: 95%"></div>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-success"><%= lang === 'ar' ? 'ممتاز' : 'Excellent' %></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><%= lang === 'ar' ? 'الاستقبال' : 'Reception' %></td>
+                                        <td>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar" style="width: 88%"></div>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-success"><%= lang === 'ar' ? 'جيد جداً' : 'Very Good' %></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><%= lang === 'ar' ? 'المطبخ' : 'Kitchen' %></td>
+                                        <td>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar" style="width: 82%"></div>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-warning"><%= lang === 'ar' ? 'جيد' : 'Good' %></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><%= lang === 'ar' ? 'الأمن' : 'Security' %></td>
+                                        <td>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar" style="width: 78%"></div>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-warning"><%= lang === 'ar' ? 'جيد' : 'Good' %></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="luxury-card p-4">
+                        <h5 class="text-gold mb-4">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <%= lang === 'ar' ? 'المؤشرات التي تحتاج اهتمام' : 'KPIs Needing Attention' %>
+                        </h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th><%= lang === 'ar' ? 'المؤشر' : 'KPI' %></th>
+                                        <th><%= lang === 'ar' ? 'التقدم' : 'Progress' %></th>
+                                        <th><%= lang === 'ar' ? 'الحالة' : 'Status' %></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><%= lang === 'ar' ? 'تدريب الموظفين' : 'Employee Training' %></td>
+                                        <td>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar bg-warning" style="width: 45%"></div>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-warning"><%= lang === 'ar' ? 'بحاجة تحسين' : 'Needs Improvement' %></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><%= lang === 'ar' ? 'صيانة المرافق' : 'Facility Maintenance' %></td>
+                                        <td>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar bg-warning" style="width: 60%"></div>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-warning"><%= lang === 'ar' ? 'متوسط' : 'Average' %></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><%= lang === 'ar' ? 'تطوير النظام' : 'System Development' %></td>
+                                        <td>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar bg-danger" style="width: 30%"></div>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-danger"><%= lang === 'ar' ? 'منخفض' : 'Low' %></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/scripts') %>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // رسم بياني لأداء الإدارات
+        const departmentCtx = document.getElementById('departmentChart').getContext('2d');
+        const departmentChart = new Chart(departmentCtx, {
+            type: 'bar',
+            data: {
+                labels: ['<%= lang === "ar" ? "خدمات الغرف" : "Housekeeping" %>', '<%= lang === "ar" ? "الاستقبال" : "Reception" %>', '<%= lang === "ar" ? "المطبخ" : "Kitchen" %>', '<%= lang === "ar" ? "الأمن" : "Security" %>'],
+                datasets: [{
+                    label: '<%= lang === "ar" ? "الأداء (%)" : "Performance (%)" %>',
+                    data: [95, 88, 82, 78],
+                    backgroundColor: '#d4af37',
+                    borderColor: '#b8941f',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // رسم بياني لتقدم المؤشرات
+        const kpiCtx = document.getElementById('kpiChart').getContext('2d');
+        const kpiChart = new Chart(kpiCtx, {
+            type: 'line',
+            data: {
+                labels: ['<%= lang === "ar" ? "يناير" : "Jan" %>', '<%= lang === "ar" ? "فبراير" : "Feb" %>', '<%= lang === "ar" ? "مارس" : "Mar" %>', '<%= lang === "ar" ? "أبريل" : "Apr" %>', '<%= lang === "ar" ? "مايو" : "May" %>', '<%= lang === "ar" ? "يونيو" : "Jun" %>'],
+                datasets: [{
+                    label: '<%= lang === "ar" ? "معدل الإشغال" : "Occupancy Rate" %>',
+                    data: [75, 78, 82, 85, 88, 85],
+                    borderColor: '#d4af37',
+                    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+    <%- include('../partials/head') %>
+</head>
+<body class="dashboard-bg">
+    <%- include('../partials/sidebar') %>
+    
+    <div class="main-content">
+        <%- include('../partials/navbar') %>
+        
+        <div class="container-fluid py-4">
+            <!-- رسائل النجاح/الخطأ -->
+            <% if (success) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <% if (success === 'project_created') { %>
+                    <%= lang === 'ar' ? 'تم إضافة المشروع بنجاح!' : 'Project added successfully!' %>
+                <% } else if (success === 'project_updated') { %>
+                    <%= lang === 'ar' ? 'تم تحديث المشروع بنجاح!' : 'Project updated successfully!' %>
+                <% } else if (success === 'project_deleted') { %>
+                    <%= lang === 'ar' ? 'تم حذف المشروع بنجاح!' : 'Project deleted successfully!' %>
+                <% } %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+            
+            <% if (error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <% if (error === 'project_create_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في إضافة المشروع' : 'Failed to add project' %>
+                <% } else if (error === 'project_update_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في تحديث المشروع' : 'Failed to update project' %>
+                <% } else if (error === 'project_delete_failed') { %>
+                    <%= lang === 'ar' ? 'فشل في حذف المشروع' : 'Failed to delete project' %>
+                <% } %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="text-dark mb-0">
+                    <i class="fas fa-tasks text-gold me-2"></i>
+                    <%= title %>
+                </h4>
+                <button class="btn btn-luxury" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                    <i class="fas fa-plus me-2"></i>
+                    <%= lang === 'ar' ? 'إضافة مشروع' : 'Add Project' %>
+                </button>
+            </div>
+
+            <!-- جدول المشاريع -->
+            <div class="luxury-card">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th><%= lang === 'ar' ? 'اسم المشروع' : 'Project Name' %></th>
+                                <th><%= lang === 'ar' ? 'الإدارة' : 'Department' %></th>
+                                <th><%= lang === 'ar' ? 'الأولوية' : 'Priority' %></th>
+                                <th><%= lang === 'ar' ? 'الموازنة' : 'Budget' %></th>
+                                <th><%= lang === 'ar' ? 'التقدم' : 'Progress' %></th>
+                                <th><%= lang === 'ar' ? 'الحالة' : 'Status' %></th>
+                                <th><%= lang === 'ar' ? 'الإجراءات' : 'Actions' %></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (projects && projects.length > 0) { %>
+                                <% projects.forEach(project => { %>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong><%= project.name.ar %></strong>
+                                            <br>
+                                            <small class="text-muted"><%= project.name.en %></small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <% if (project.department) { %>
+                                            <span class="text-dark"><%= project.department.name.ar %></span>
+                                        <% } else { %>
+                                            <span class="text-muted">-</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% const priorityColors = {
+                                            'low': 'success',
+                                            'medium': 'warning', 
+                                            'high': 'danger',
+                                            'critical': 'dark'
+                                        } %>
+                                        <% const priorityLabels = {
+                                            'low': lang === 'ar' ? 'منخفض' : 'Low',
+                                            'medium': lang === 'ar' ? 'متوسط' : 'Medium',
+                                            'high': lang === 'ar' ? 'مرتفع' : 'High',
+                                            'critical': lang === 'ar' ? 'حرج' : 'Critical'
+                                        } %>
+                                        <span class="badge bg-<%= priorityColors[project.priority] %>">
+                                            <%= priorityLabels[project.priority] %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong><%= project.budget?.toLocaleString() || 0 %> <%= lang === 'ar' ? 'ريال' : 'SAR' %></strong>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                <div class="progress-bar" style="width: <%= project.progress %>%"></div>
+                                            </div>
+                                            <small><%= project.progress %>%</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <% const statusColors = {
+                                            'pending': 'warning',
+                                            'in-progress': 'info',
+                                            'completed': 'success',
+                                            'cancelled': 'danger'
+                                        } %>
+                                        <% const statusLabels = {
+                                            'pending': lang === 'ar' ? 'معلق' : 'Pending',
+                                            'in-progress': lang === 'ar' ? 'قيد التنفيذ' : 'In Progress',
+                                            'completed': lang === 'ar' ? 'مكتمل' : 'Completed',
+                                            'cancelled': lang === 'ar' ? 'ملغي' : 'Cancelled'
+                                        } %>
+                                        <span class="badge bg-<%= statusColors[project.status] %>">
+                                            <%= statusLabels[project.status] %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-outline-luxury" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editProjectModal"
+                                                    data-id="<%= project._id %>"
+                                                    data-name-ar="<%= project.name.ar %>"
+                                                    data-name-en="<%= project.name.en %>"
+                                                    data-description="<%= project.description || '' %>"
+                                                    data-department="<%= project.department?._id %>"
+                                                    data-priority="<%= project.priority %>"
+                                                    data-deadline="<%= project.deadline ? new Date(project.deadline).toISOString().split('T')[0] : '' %>"
+                                                    data-budget="<%= project.budget %>"
+                                                    data-progress="<%= project.progress %>"
+                                                    data-status="<%= project.status %>">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <form action="/admin/projects/<%= project._id %>?_method=DELETE&lang=<%= lang %>" method="POST" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                        onclick="return confirm('<%= lang === 'ar' ? 'هل أنت متأكد من حذف هذا المشروع؟' : 'Are you sure you want to delete this project?' %>')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted"><%= lang === 'ar' ? 'لا توجد مشاريع' : 'No projects found' %></p>
+                                        <button class="btn btn-luxury" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                                            <i class="fas fa-plus me-2"></i>
+                                            <%= lang === 'ar' ? 'إضافة أول مشروع' : 'Add First Project' %>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal إضافة مشروع -->
+    <div class="modal fade" id="addProjectModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-gold">
+                        <i class="fas fa-plus me-2"></i>
+                        <%= lang === 'ar' ? 'إضافة مشروع جديد' : 'Add New Project' %>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="/admin/projects?lang=<%= lang %>" method="POST">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'اسم المشروع (عربي)' : 'Project Name (Arabic)' %> *</label>
+                                    <input type="text" class="form-control" name="name[ar]" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'اسم المشروع (إنجليزي)' : 'Project Name (English)' %> *</label>
+                                    <input type="text" class="form-control" name="name[en]" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><%= lang === 'ar' ? 'وصف المشروع' : 'Project Description' %></label>
+                            <textarea class="form-control" name="description" rows="3"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الإدارة' : 'Department' %></label>
+                                    <select class="form-select" name="department">
+                                        <option value=""><%= lang === 'ar' ? 'اختر الإدارة' : 'Select Department' %></option>
+                                        <% departments.forEach(dept => { %>
+                                            <option value="<%= dept._id %>"><%= dept.name.ar %></option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الأولوية' : 'Priority' %></label>
+                                    <select class="form-select" name="priority">
+                                        <option value="low"><%= lang === 'ar' ? 'منخفض' : 'Low' %></option>
+                                        <option value="medium" selected><%= lang === 'ar' ? 'متوسط' : 'Medium' %></option>
+                                        <option value="high"><%= lang === 'ar' ? 'مرتفع' : 'High' %></option>
+                                        <option value="critical"><%= lang === 'ar' ? 'حرج' : 'Critical' %></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'تاريخ الانتهاء' : 'Deadline' %></label>
+                                    <input type="date" class="form-control" name="deadline">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الموازنة' : 'Budget' %> (<%= lang === 'ar' ? 'ريال' : 'SAR' %>)</label>
+                                    <input type="number" class="form-control" name="budget" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'التقدم' : 'Progress' %> (%)</label>
+                                    <input type="number" class="form-control" name="progress" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الحالة' : 'Status' %></label>
+                                    <select class="form-select" name="status">
+                                        <option value="pending"><%= lang === 'ar' ? 'معلق' : 'Pending' %></option>
+                                        <option value="in-progress"><%= lang === 'ar' ? 'قيد التنفيذ' : 'In Progress' %></option>
+                                        <option value="completed"><%= lang === 'ar' ? 'مكتمل' : 'Completed' %></option>
+                                        <option value="cancelled"><%= lang === 'ar' ? 'ملغي' : 'Cancelled' %></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <%= t.cancel %>
+                        </button>
+                        <button type="submit" class="btn btn-luxury">
+                            <i class="fas fa-save me-2"></i>
+                            <%= t.save %>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal تعديل مشروع -->
+    <div class="modal fade" id="editProjectModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-gold">
+                        <i class="fas fa-edit me-2"></i>
+                        <%= lang === 'ar' ? 'تعديل المشروع' : 'Edit Project' %>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editProjectForm" method="POST">
+                    <input type="hidden" name="_method" value="PUT">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'اسم المشروع (عربي)' : 'Project Name (Arabic)' %> *</label>
+                                    <input type="text" class="form-control" name="name[ar]" id="editNameAr" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'اسم المشروع (إنجليزي)' : 'Project Name (English)' %> *</label>
+                                    <input type="text" class="form-control" name="name[en]" id="editNameEn" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><%= lang === 'ar' ? 'وصف المشروع' : 'Project Description' %></label>
+                            <textarea class="form-control" name="description" id="editDescription" rows="3"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الإدارة' : 'Department' %></label>
+                                    <select class="form-select" name="department" id="editDepartment">
+                                        <option value=""><%= lang === 'ar' ? 'اختر الإدارة' : 'Select Department' %></option>
+                                        <% departments.forEach(dept => { %>
+                                            <option value="<%= dept._id %>"><%= dept.name.ar %></option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الأولوية' : 'Priority' %></label>
+                                    <select class="form-select" name="priority" id="editPriority">
+                                        <option value="low"><%= lang === 'ar' ? 'منخفض' : 'Low' %></option>
+                                        <option value="medium"><%= lang === 'ar' ? 'متوسط' : 'Medium' %></option>
+                                        <option value="high"><%= lang === 'ar' ? 'مرتفع' : 'High' %></option>
+                                        <option value="critical"><%= lang === 'ar' ? 'حرج' : 'Critical' %></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'تاريخ الانتهاء' : 'Deadline' %></label>
+                                    <input type="date" class="form-control" name="deadline" id="editDeadline">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الموازنة' : 'Budget' %> (<%= lang === 'ar' ? 'ريال' : 'SAR' %>)</label>
+                                    <input type="number" class="form-control" name="budget" id="editBudget" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'التقدم' : 'Progress' %> (%)</label>
+                                    <input type="number" class="form-control" name="progress" id="editProgress" min="0" max="100">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><%= lang === 'ar' ? 'الحالة' : 'Status' %></label>
+                                    <select class="form-select" name="status" id="editStatus">
+                                        <option value="pending"><%= lang === 'ar' ? 'معلق' : 'Pending' %></option>
+                                        <option value="in-progress"><%= lang === 'ar' ? 'قيد التنفيذ' : 'In Progress' %></option>
+                                        <option value="completed"><%= lang === 'ar' ? 'مكتمل' : 'Completed' %></option>
+                                        <option value="cancelled"><%= lang === 'ar' ? 'ملغي' : 'Cancelled' %></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <%= t.cancel %>
+                        </button>
+                        <button type="submit" class="btn btn-luxury">
+                            <i class="fas fa-save me-2"></i>
+                            <%= t.update %>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/scripts') %>
+    
+    <script>
+        // تعديل بيانات المشروع
+        document.addEventListener('DOMContentLoaded', function() {
+            const editModal = document.getElementById('editProjectModal');
+            if (editModal) {
+                editModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const id = button.getAttribute('data-id');
+                    const form = document.getElementById('editProjectForm');
+                    
+                    form.action = `/admin/projects/${id}?lang=<%= lang %>`;
+                    document.getElementById('editNameAr').value = button.getAttribute('data-name-ar');
+                    document.getElementById('editNameEn').value = button.getAttribute('data-name-en');
+                    document.getElementById('editDescription').value = button.getAttribute('data-description');
+                    document.getElementById('editDepartment').value = button.getAttribute('data-department');
+                    document.getElementById('editPriority').value = button.getAttribute('data-priority');
+                    document.getElementById('editDeadline').value = button.getAttribute('data-deadline');
+                    document.getElementById('editBudget').value = button.getAttribute('data-budget');
+                    document.getElementById('editProgress').value = button.getAttribute('data-progress');
+                    document.getElementById('editStatus').value = button.getAttribute('data-status');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
